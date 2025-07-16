@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Histórico de Lançamentos</title>
+    <link href="/dist/output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+    <!-- Início da alteração: Removido o script inline de tema -->
+    <!-- O script inline de tema foi movido para public/js/theme.js -->
+    <!-- Fim da alteração -->
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-20">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <!-- Início da correção: Link principal para lancamentos.html -->
+                <a href="./lancamentos.html" class="text-xl font-bold text-gray-800 dark:text-white">Controle Financeiro</a>
+                <!-- Fim da correção: Link principal para lancamentos.html -->
+                <a href="./lancamentos.html" class="text-sm font-medium text-gray-500 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">Lançamentos</a>
+                 <a href="./configuracoes.html" class="text-sm font-medium text-gray-500 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">Configurações</a>
+            </div>
+            <div class="flex items-center">
+                <span id="userName" class="text-gray-700 dark:text-gray-300 mr-4 hidden md:inline"></span>
+                <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 mr-2">
+                    <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                    <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm-.707 7.072l.707-.707a1 1 0 10-1.414-1.414l-.707.707a1 1 0 001.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                </button>
+                <button id="logoutButton" aria-haspopup="false" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+                    Sair
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-6">
+        <div id="loader" class="text-center py-10">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-400" role="status">Carregando histórico...</p>
+        </div>
+
+        <div id="mainContent" class="hidden">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-6">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Filtrar Lançamentos</h3>
+                <form id="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label for="startDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">De</label>
+                        <input type="date" id="startDate" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-600">
+                    </div>
+                    <div>
+                        <label for="endDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Até</label>
+                        <input type="date" id="endDate" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-600">
+                    </div>
+                    <div>
+                        <label for="categoria" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoria</label>
+                        <input type="text" id="categoria" placeholder="Ex: Supermercado" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-600">
+                    </div>
+                    <div>
+                        <label for="tipo" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo</label>
+                        <select id="tipo" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-600">
+                            <option value="todos">Todos</option>
+                            <option value="receita">Receita</option>
+                            <option value="despesa">Despesa</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 md:col-span-2 lg:col-span-4 flex justify-end items-end gap-3">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50">Aplicar Filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="filterFeedback" role="alert" aria-live="polite" class="hidden mb-4 text-center p-3 rounded-lg text-sm bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"></div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <caption class="p-4 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+                            Histórico de lançamentos financeiros
+                        </caption>
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Descrição</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Data</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Categoria</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historicoList" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="hidden text-center p-10">
+                    <p class="text-gray-500 dark:text-gray-400">Nenhum lançamento encontrado.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="./js/historico.js"></script>
+    <!-- Início da alteração: Adicionada a chamada para o script de tema externo -->
+    <script type="module" src="./js/theme.js"></script>
+    <!-- Fim da alteração: Adicionada a chamada para o script de tema externo -->
+</body>
+</html>

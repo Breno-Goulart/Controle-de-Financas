@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gerenciar Lançamentos</title>
+    <link href="/dist/output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilo para o modal de confirmação */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+        .modal-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        /* Estilo para a tabela responsiva */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Para rolagem suave em iOS */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px; /* Ajustado para acomodar as colunas sem a coluna de ações */
+        }
+        th, td {
+            padding: 0.75rem; /* 12px */
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
+        }
+        th {
+            background-color: #f9fafb; /* Tailwind gray-50 */
+            font-weight: 600;
+            color: #374151; /* Tailwind gray-700 */
+            text-transform: uppercase;
+            font-size: 0.75rem; /* text-xs */
+        }
+        tbody tr:hover {
+            background-color: #f3f4f6; /* Tailwind gray-100 */
+            cursor: pointer; /* Indica que a linha é clicável */
+        }
+        .text-green-600 { color: #22c55e; } /* Tailwind green-500 */
+        .text-red-600 { color: #ef4444; } /* Tailwind red-500 */
+        .text-blue-600 { color: #3b82f6; } /* Tailwind blue-500 */
+
+        /* Estilos para o FAB e Modal de Lançamento */
+        .fab {
+            position: fixed;
+            bottom: 1.5rem; /* 24px */
+            right: 1.5rem; /* 24px */
+            background-color: #3b82f6; /* Tailwind blue-500 */
+            color: white;
+            border-radius: 9999px; /* Full rounded */
+            width: 3.5rem; /* 56px */
+            height: 3.5rem; /* 56px */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.25rem; /* text-4xl */
+            line-height: 1;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Shadow-lg */
+            transition: background-color 0.2s, transform 0.2s;
+            z-index: 50; /* Higher than other content */
+            cursor: pointer;
+        }
+        .fab:hover {
+            background-color: #2563eb; /* Tailwind blue-600 */
+            transform: translateY(-2px);
+        }
+        .fab:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .modal-lancamento-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-lancamento-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280; /* Tailwind gray-500 */
+            transition: color 0.2s;
+        }
+        .modal-close-btn:hover {
+            color: #ef4444; /* Tailwind red-500 */
+        }
+
+        /* Estilos para o Toast Notification */
+        .toast {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .show-toast {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <!-- Início da alteração: Revisão e atualização da navegação do cabeçalho -->
+    <header class="bg-white shadow-md sticky top-0 z-20">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <h1 class="text-xl font-bold text-gray-800">Gerenciar Lançamentos</h1>
+                <a href="./historico.html" class="text-sm font-medium text-gray-500 hover:text-blue-600" aria-label="Histórico Completo">Histórico Completo</a>
+                <!-- Início da alteração: Correção do link para relatórios de 'relatorios.html' para 'relatorio.html' -->
+                <a href="./relatorio.html" class="text-sm font-medium text-gray-500 hover:text-blue-600" aria-label="Gerar Relatórios">Relatórios</a>
+                <!-- Fim da alteração -->
+            </div>
+            <div>
+                <a href="./configuracoes.html" id="userNameLink" class="text-gray-700 mr-4 hidden md:inline" aria-label="Configurações do Perfil" role="link">
+                    <span id="userName" aria-live="polite"></span>
+                </a>
+                <button id="logoutButton" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition" aria-label="Sair do sistema">
+                    Sair
+                </button>
+            </div>
+        </nav>
+    </header>
+    <!-- Fim da alteração: Revisão e atualização da navegação do cabeçalho -->
+
+    <main class="container mx-auto p-4 md:p-6 space-y-6">
+        <!-- Mensagens de feedback -->
+        <div id="message" role="alert" class="hidden mb-4 p-3 rounded text-white"></div>
+
+        <!-- Início da alteração: Adição da Seção de Resumo Financeiro -->
+        <section aria-label="Resumo financeiro" class="bg-white p-6 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-green-100 p-4 rounded shadow text-center">
+                <h3 class="text-lg font-semibold text-green-700">Total Receitas</h3>
+                <p id="totalReceitas" class="text-2xl font-bold text-green-800">R$ 0,00</p>
+            </div>
+            <div class="bg-red-100 p-4 rounded shadow text-center">
+                <h3 class="text-lg font-semibold text-red-700">Total Despesas</h3>
+                <p id="totalDespesas" class="text-2xl font-bold text-red-800">R$ 0,00</p>
+            </div>
+            <div class="bg-blue-100 p-4 rounded shadow text-center">
+                <h3 class="text-lg font-semibold text-blue-700">Saldo Atual</h3>
+                <p id="saldoAtual" class="text-2xl font-bold text-blue-800">R$ 0,00</p>
+            </div>
+        </section>
+        <!-- Fim da alteração: Adição da Seção de Resumo Financeiro -->
+
+        <!-- Seção de Filtros -->
+        <section aria-label="Filtros para lançamentos" class="bg-white p-6 rounded-lg shadow-sm">
+            <h2 class="text-lg font-bold mb-4">Filtros</h2>
+            <form id="filtrosForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="filterMonth" class="block text-sm font-medium text-gray-700">Mês</label>
+                    <select id="filterMonth" name="filterMonth" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Todos</option>
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</label>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filterYear" class="block text-sm font-medium text-gray-700">Ano</label>
+                    <select id="filterYear" name="filterYear" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <!-- Options preenchidas dinamicamente pelo JS -->
+                    </select>
+                </div>
+                <div>
+                    <label for="filterDay" class="block text-sm font-medium text-gray-700">Dia</label>
+                    <input
+                        type="number"
+                        id="filterDay"
+                        name="filterDay"
+                        min="1"
+                        max="31"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Ex: 15"
+                    />
+                </div>
+                <div>
+                    <label for="filterCategoria" class="block text-sm font-medium text-gray-700">Categoria</label>
+                    <input
+                        type="text"
+                        id="filterCategoria"
+                        name="filterCategoria"
+                        placeholder="Ex: Alimentação"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        aria-label="Filtrar por categoria"
+                    />
+                </div>
+                <div>
+                    <label for="filterTipo" class="block text-sm font-medium text-gray-700">Tipo</label>
+                    <select
+                        id="filterTipo"
+                        name="filterTipo"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        aria-label="Filtrar por tipo"
+                    >
+                        <option value="todos" selected>Todos</option>
+                        <option value="receita">Receita</option>
+                        <option value="despesa">Despesa</option>
+                    </select>
+                </div>
+                <div class="md:col-span-full flex gap-4 justify-end">
+                    <!-- Botão "Aplicar Filtros" removido -->
+                    <button
+                        type="button"
+                        id="clearFiltersBtn"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition"
+                    >
+                        Limpar Filtros
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Lista de Lançamentos em Tabela -->
+        <section aria-label="Lista de lançamentos" class="bg-white p-6 rounded-lg shadow-sm">
+            <h2 class="text-lg font-bold mb-4">Lançamentos</h2>
+            <div class="table-container">
+                <table id="lancamentosTable">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Parcelas</th> <!-- MOVIDA PARA AQUI -->
+                            <th>Valor</th>
+                            <th>Tipo</th>
+                            <th>Categoria</th>
+                            <th>Forma de Pagamento</th>
+                            <th>Recorrência</th>
+                            <th>Usuário</th>
+                            <!-- Coluna de Ações REMOVIDA -->
+                        </tr>
+                    </thead>
+                    <tbody id="lancamentosTableBody">
+                        <!-- Lançamentos serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="hidden text-center text-gray-500 mt-6">
+                Nenhum lançamento encontrado.
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Action Button -->
+    <button id="btnNovoLancamento" class="fab" aria-label="Adicionar novo lançamento">
+        <span aria-hidden="true">+</span>
+    </button>
+
+    <!-- Modal de Lançamento (EDITAR/CRIAR/TRANSFERIR/EXCLUIR) -->
+    <!-- Início da alteração: Adicionado style="display: none;" para garantir que o modal comece escondido -->
+    <div id="modalLancamento" class="modal-lancamento-overlay hidden" style="display: none;">
+    <!-- Fim da alteração -->
+        <div class="modal-lancamento-content">
+            <button id="modalCloseBtn" class="modal-close-btn" aria-label="Fechar formulário de lançamento">✖</button>
+            <h2 class="text-xl font-bold mb-4" id="modalFormTitle">Novo Lançamento</h2>
+            <form id="lancamentoFormModal" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <label for="descricaoModal" class="block text-sm font-medium text-gray-700">Descrição</label>
+                    <input
+                        type="text"
+                        id="descricaoModal"
+                        name="descricao"
+                        required
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Ex: Compra mercado"
+                        aria-required="true"
+                    />
+                </div>
+                <div>
+                    <label for="valorModal" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
+                    <input
+                        type="number"
+                        id="valorModal"
+                        name="valor"
+                        step="0.01"
+                        min="0.01"
+                        required
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Ex: 50.00"
+                        aria-required="true"
+                    />
+                </div>
+                <div>
+                    <label for="dataModal" class="block text-sm font-medium text-gray-700">Data</label>
+                    <input
+                        type="date"
+                        id="dataModal"
+                        name="data"
+                        required
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        aria-required="true"
+                    />
+                </div>
+                <div>
+                    <label for="categoriaModal" class="block text-sm font-medium text-gray-700">Categoria</label>
+                    <input
+                        type="text"
+                        id="categoriaModal"
+                        name="categoria"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Ex: Alimentação"
+                    />
+                </div>
+                <div>
+                    <label for="tipoModal" class="block text-sm font-medium text-gray-700">Tipo</label>
+                    <select
+                        id="tipoModal"
+                        name="tipo"
+                        required
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        aria-required="true"
+                    >
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="receita">Receita</option>
+                        <option value="despesa">Despesa</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="formaPagamentoModal" class="block text-sm font-medium text-gray-700">Forma de Pagamento</label>
+                    <input
+                        type="text"
+                        id="formaPagamentoModal"
+                        name="formaPagamento"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Ex: Cartão de Crédito"
+                    />
+                </div>
+                <!-- Novo campo de observação -->
+                <div class="md:col-span-2">
+                    <label for="observacaoModal" class="block text-sm font-medium text-gray-700">Observação</label>
+                    <textarea
+                        id="observacaoModal"
+                        name="observacao"
+                        rows="2"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Adicione qualquer observação aqui..."
+                    ></textarea>
+                </div>
+                <!-- Campos para lançamentos parcelados/recorrentes (visibilidade controlada por JS) -->
+                <div>
+                    <label for="tipoLancamentoModal" class="block text-sm font-medium text-gray-700">Tipo de Lançamento</label>
+                    <select
+                        id="tipoLancamentoModal"
+                        name="tipoLancamento"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="normal">Normal</option>
+                        <option value="parcelado">Parcelado</option>
+                        <option value="recorrente">Recorrente</option>
+                    </select>
+                </div>
+                <div id="numParcelasRecorrenciasContainer" class="hidden">
+                    <label for="numParcelasRecorrenciasModal" class="block text-sm font-medium text-gray-700">Número de Parcelas/Recorrências</label>
+                    <input
+                        type="number"
+                        id="numParcelasRecorrenciasModal"
+                        name="numParcelasRecorrencias"
+                        min="1"
+                        value="1"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <!-- Novo campo para Frequência de Recorrência -->
+                <div id="frequenciaRecorrenciaContainer" class="hidden">
+                    <label for="frequenciaRecorrenciaModal" class="block text-sm font-medium text-gray-700">Frequência</label>
+                    <select
+                        id="frequenciaRecorrenciaModal"
+                        name="frequenciaRecorrencia"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="mensal">Mensal</option>
+                        <option value="anual">Anual</option>
+                    </select>
+                </div>
+                <!-- Novo campo para Data Final de Recorrência -->
+                <div id="dataFimRecorrenciaContainer" class="hidden">
+                    <label for="dataFimRecorrenciaModal" class="block text-sm font-medium text-gray-700">Data Final (Opcional)</label>
+                    <input
+                        type="date"
+                        id="dataFimRecorrenciaModal"
+                        name="dataFimRecorrencia"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <!-------------------------------------------------------->
+                <div class="flex items-end gap-2 md:col-span-2">
+                    <button
+                        type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+                        id="submitModalBtn"
+                    >
+                        Salvar Lançamento
+                    </button>
+                    <button
+                        type="button"
+                        id="cancelEditModalBtn"
+                        class="hidden bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition"
+                    >
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+
+            <!-- Seção de Ações Adicionais (Transferir/Excluir) -->
+            <div id="additionalActions" class="mt-6 pt-4 border-t border-gray-200 hidden">
+                <h3 class="text-lg font-bold mb-3">Ações Avançadas</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label for="transferUserSelect" class="block text-sm font-medium text-gray-700">Transferir para:</label>
+                        <select id="transferUserSelect" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <!-- Usuários serão preenchidos aqui pelo JS -->
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="confirmTransferBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition">Transferir</button>
+                    </div>
+                    <div class="md:col-span-2">
+                        <button id="deleteLaunchBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition">Excluir Lançamento</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação (para exclusão) -->
+    <!-- Início da alteração: Adicionado style="display: none;" para garantir que o modal comece escondido -->
+    <div id="modalConfirmacao" class="modal-overlay hidden" style="display: none;">
+    <!-- Fim da alteração -->
+        <div class="modal-content">
+            <p id="confirmacaoMensagem" class="text-gray-800 text-lg mb-4"></p>
+            <div class="modal-buttons">
+                <button id="confirmacaoSim" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition">Sim</button>
+                <button id="confirmacaoNao" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition">Não</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-green-600 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 toast"></div>
+
+    <!-- Script JS -->
+    <script type="module" src="./js/lancamentos.js"></script>
+    <!-- Início da alteração: Adicionada a chamada para o script de tema externo -->
+    <script type="module" src="./js/theme.js"></script>
+    <!-- Fim da alteração: Adicionada a chamada para o script de tema externo -->
+</body>
+</html>
