@@ -1,3 +1,4 @@
+import '../style.css'; // Adicionada esta linha
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';

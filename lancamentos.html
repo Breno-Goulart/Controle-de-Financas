@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Gerenciar Lançamentos</title>
-    <link rel="stylesheet" href="/style.css" />
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
         body {
@@ -146,17 +146,13 @@
     </style>
 </head>
 <body class="bg-gray-100">
-    <!-- Header -->
-    <!-- Início da alteração: Revisão e atualização da navegação do cabeçalho -->
     <header class="bg-white shadow-md sticky top-0 z-20">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-6">
                 <h1 class="text-xl font-bold text-gray-800">Gerenciar Lançamentos</h1>
                 <a href="./historico.html" class="text-sm font-medium text-gray-500 hover:text-blue-600" aria-label="Histórico Completo">Histórico Completo</a>
-                <!-- Início da alteração: Correção do link para relatórios de 'relatorios.html' para 'relatorio.html' -->
                 <a href="./relatorio.html" class="text-sm font-medium text-gray-500 hover:text-blue-600" aria-label="Gerar Relatórios">Relatórios</a>
-                <!-- Fim da alteração -->
-            </div>
+                </div>
             <div>
                 <a href="./configuracoes.html" id="userNameLink" class="text-gray-700 mr-4 hidden md:inline" aria-label="Configurações do Perfil" role="link">
                     <span id="userName" aria-live="polite"></span>
@@ -167,13 +163,9 @@
             </div>
         </nav>
     </header>
-    <!-- Fim da alteração: Revisão e atualização da navegação do cabeçalho -->
-
     <main class="container mx-auto p-4 md:p-6 space-y-6">
-        <!-- Mensagens de feedback -->
         <div id="message" role="alert" class="hidden mb-4 p-3 rounded text-white"></div>
 
-        <!-- Início da alteração: Adição da Seção de Resumo Financeiro -->
         <section aria-label="Resumo financeiro" class="bg-white p-6 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-green-100 p-4 rounded shadow text-center">
                 <h3 class="text-lg font-semibold text-green-700">Total Receitas</h3>
@@ -188,9 +180,6 @@
                 <p id="saldoAtual" class="text-2xl font-bold text-blue-800">R$ 0,00</p>
             </div>
         </section>
-        <!-- Fim da alteração: Adição da Seção de Resumo Financeiro -->
-
-        <!-- Seção de Filtros -->
         <section aria-label="Filtros para lançamentos" class="bg-white p-6 rounded-lg shadow-sm">
             <h2 class="text-lg font-bold mb-4">Filtros</h2>
             <form id="filtrosForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
@@ -215,8 +204,7 @@
                 <div>
                     <label for="filterYear" class="block text-sm font-medium text-gray-700">Ano</label>
                     <select id="filterYear" name="filterYear" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <!-- Options preenchidas dinamicamente pelo JS -->
-                    </select>
+                        </select>
                 </div>
                 <div>
                     <label for="filterDay" class="block text-sm font-medium text-gray-700">Dia</label>
@@ -255,7 +243,6 @@
                     </select>
                 </div>
                 <div class="md:col-span-full flex gap-4 justify-end">
-                    <!-- Botão "Aplicar Filtros" removido -->
                     <button
                         type="button"
                         id="clearFiltersBtn"
@@ -267,7 +254,6 @@
             </form>
         </section>
 
-        <!-- Lista de Lançamentos em Tabela -->
         <section aria-label="Lista de lançamentos" class="bg-white p-6 rounded-lg shadow-sm">
             <h2 class="text-lg font-bold mb-4">Lançamentos</h2>
             <div class="table-container">
@@ -276,19 +262,16 @@
                         <tr>
                             <th>Data</th>
                             <th>Descrição</th>
-                            <th>Parcelas</th> <!-- MOVIDA PARA AQUI -->
-                            <th>Valor</th>
+                            <th>Parcelas</th> <th>Valor</th>
                             <th>Tipo</th>
                             <th>Categoria</th>
                             <th>Forma de Pagamento</th>
                             <th>Recorrência</th>
                             <th>Usuário</th>
-                            <!-- Coluna de Ações REMOVIDA -->
-                        </tr>
+                            </tr>
                     </thead>
                     <tbody id="lancamentosTableBody">
-                        <!-- Lançamentos serão inseridos aqui -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
             <div id="emptyState" class="hidden text-center text-gray-500 mt-6">
@@ -297,16 +280,12 @@
         </section>
     </main>
 
-    <!-- Floating Action Button -->
     <button id="btnNovoLancamento" class="fab" aria-label="Adicionar novo lançamento">
         <span aria-hidden="true">+</span>
     </button>
 
-    <!-- Modal de Lançamento (EDITAR/CRIAR/TRANSFERIR/EXCLUIR) -->
-    <!-- Início da alteração: Adicionado style="display: none;" para garantir que o modal comece escondido -->
     <div id="modalLancamento" class="modal-lancamento-overlay hidden" style="display: none;">
-    <!-- Fim da alteração -->
-        <div class="modal-lancamento-content">
+    <div class="modal-lancamento-content">
             <button id="modalCloseBtn" class="modal-close-btn" aria-label="Fechar formulário de lançamento">✖</button>
             <h2 class="text-xl font-bold mb-4" id="modalFormTitle">Novo Lançamento</h2>
             <form id="lancamentoFormModal" class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -381,7 +360,6 @@
                         placeholder="Ex: Cartão de Crédito"
                     />
                 </div>
-                <!-- Novo campo de observação -->
                 <div class="md:col-span-2">
                     <label for="observacaoModal" class="block text-sm font-medium text-gray-700">Observação</label>
                     <textarea
@@ -392,7 +370,6 @@
                         placeholder="Adicione qualquer observação aqui..."
                     ></textarea>
                 </div>
-                <!-- Campos para lançamentos parcelados/recorrentes (visibilidade controlada por JS) -->
                 <div>
                     <label for="tipoLancamentoModal" class="block text-sm font-medium text-gray-700">Tipo de Lançamento</label>
                     <select
@@ -416,7 +393,6 @@
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
-                <!-- Novo campo para Frequência de Recorrência -->
                 <div id="frequenciaRecorrenciaContainer" class="hidden">
                     <label for="frequenciaRecorrenciaModal" class="block text-sm font-medium text-gray-700">Frequência</label>
                     <select
@@ -428,7 +404,6 @@
                         <option value="anual">Anual</option>
                     </select>
                 </div>
-                <!-- Novo campo para Data Final de Recorrência -->
                 <div id="dataFimRecorrenciaContainer" class="hidden">
                     <label for="dataFimRecorrenciaModal" class="block text-sm font-medium text-gray-700">Data Final (Opcional)</label>
                     <input
@@ -438,7 +413,6 @@
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
-                <!-------------------------------------------------------->
                 <div class="flex items-end gap-2 md:col-span-2">
                     <button
                         type="submit"
@@ -457,15 +431,13 @@
                 </div>
             </form>
 
-            <!-- Seção de Ações Adicionais (Transferir/Excluir) -->
             <div id="additionalActions" class="mt-6 pt-4 border-t border-gray-200 hidden">
                 <h3 class="text-lg font-bold mb-3">Ações Avançadas</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                         <label for="transferUserSelect" class="block text-sm font-medium text-gray-700">Transferir para:</label>
                         <select id="transferUserSelect" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            <!-- Usuários serão preenchidos aqui pelo JS -->
-                        </select>
+                            </select>
                     </div>
                     <div class="flex items-end">
                         <button id="confirmTransferBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition">Transferir</button>
@@ -478,11 +450,8 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmação (para exclusão) -->
-    <!-- Início da alteração: Adicionado style="display: none;" para garantir que o modal comece escondido -->
     <div id="modalConfirmacao" class="modal-overlay hidden" style="display: none;">
-    <!-- Fim da alteração -->
-        <div class="modal-content">
+    <div class="modal-content">
             <p id="confirmacaoMensagem" class="text-gray-800 text-lg mb-4"></p>
             <div class="modal-buttons">
                 <button id="confirmacaoSim" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition">Sim</button>
@@ -491,13 +460,9 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-6 right-6 bg-green-600 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 toast"></div>
 
-    <!-- Script JS -->
     <script type="module" src="/js/lancamentos.js"></script>
-    <!-- Início da alteração: Adicionada a chamada para o script de tema externo -->
     <script type="module" src="/js/theme.js"></script>
-    <!-- Fim da alteração: Adicionada a chamada para o script de tema externo -->
-</body>
+    </body>
 </html>

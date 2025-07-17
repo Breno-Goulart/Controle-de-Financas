@@ -1,3 +1,4 @@
+import '../style.css'; // Adicionada esta linha
 // js/lancamentos.js
 // Este arquivo gerencia a lógica da página de lançamentos, incluindo CRUD, filtros e resumo financeiro.
 
@@ -415,13 +416,11 @@ function renderLancamentos(lancamentos) {
                 row.innerHTML = `
                     <td>${formatDate(l)}</td>
                     <td>${l.descricao || "N/A"}</td>
-                    <td>${l.tipoLancamento === "parcelado" ? `${l.parcelaAtual}/${l.totalParcelas}` : 'Não'}</td> <!-- Usando tipoLancamento -->
-                    <td class="${textColor}">${formatCurrency(l.valor)}</td>
+                    <td>${l.tipoLancamento === "parcelado" ? `${l.parcelaAtual}/${l.totalParcelas}` : 'Não'}</td> <td class="${textColor}">${formatCurrency(l.valor)}</td>
                     <td>${l.tipo || "N/A"}</td>
                     <td>${l.categoria || "N/A"}</td>
                     <td>${l.formaPagamento || "N/A"}</td>
-                    <td>${l.tipoLancamento === "recorrente" ? 'Sim' : 'Não'}</td> <!-- Usando tipoLancamento -->
-                    <td>${l.nomeUsuario || '---'}</td>
+                    <td>${l.tipoLancamento === "recorrente" ? 'Sim' : 'Não'}</td> <td>${l.nomeUsuario || '---'}</td>
                 `;
 
                 // Event listener para a linha inteira da tabela
@@ -856,7 +855,7 @@ lancamentoFormModal.addEventListener("submit", async (e) => {
                     }
 
                     batch.set(currentDocRef, {
-                        descricao: descricao,
+                        descricao,
                         valor,
                         data: Timestamp.fromDate(installmentDate),
                         categoria: categoria || null,
@@ -884,7 +883,7 @@ lancamentoFormModal.addEventListener("submit", async (e) => {
                 // Para lançamentos recorrentes, o mestre é criado primeiro
                 const masterDocRef = doc(collection(db, "artifacts", "controle-de-financas-6e2d9", "public", "data", "lancamentos"));
                 batch.set(masterDocRef, {
-                    descricao: descricao,
+                    descricao,
                     valor,
                     data: Timestamp.fromDate(originalDate),
                     categoria: categoria || null,

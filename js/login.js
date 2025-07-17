@@ -1,3 +1,4 @@
+import '../style.css'; // Adicionada esta linha
 // public/js/login.js
 // Este arquivo contém todo o código JavaScript que foi movido de public/login.html
 // Início do código JavaScript movido de public/login.html
