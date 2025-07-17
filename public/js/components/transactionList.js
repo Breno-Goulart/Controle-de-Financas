@@ -1,83 +1,101 @@
-// js/components/transactionList.js
-
-import { formatDate, formatMoney } from '../utils/formatters.js';
-
 /**
- * Renderiza a lista de transações em uma tabela HTML.
- * @param {Array<object>} transactions - A lista de transações a serem renderizadas.
- * @param {HTMLElement} containerElement - O elemento DOM onde a lista será renderizada.
- * @param {function(string): void} onDeleteCallback - Callback para quando o botão de exclusão é clicado.
- * @param {function(string): void} onEditCallback - Callback para quando o botão de edição é clicado.
+ * @fileoverview Componente para exibir uma lista de transações.
+ * @author Breno Goulart
  */
-export function renderTransactionList(transactions, containerElement, onDeleteCallback, onEditCallback) {
-    if (!containerElement) {
-        console.error("Erro: Elemento container para a lista de transações não encontrado.");
-        return;
+
+import { formatCurrency, formatDate } from '../utils/formatters.js';
+
+class TransactionList {
+    /**
+     * Construtor do TransactionList.
+     * @param {string} listId - O ID do elemento onde a lista será renderizada.
+     * @param {Function} onEdit - Callback para quando uma transação é clicada para edição.
+     * @param {Function} onDelete - Callback para quando uma transação é clicada para exclusão.
+     */
+    constructor(listId, onEdit, onDelete) {
+        this.listElement = document.getElementById(listId);
+        this.onEdit = onEdit;
+        this.onDelete = onDelete;
+
+        if (!this.listElement) {
+            console.error(`Elemento com ID '${listId}' não encontrado para a lista de transações.`);
+        }
     }
 
-    // Limpa o conteúdo anterior do container
-    containerElement.innerHTML = '';
+    /**
+     * Renderiza a lista de transações.
+     * @param {Array<Object>} transactions - Um array de objetos de transação.
+     */
+    render(transactions) {
+        if (!this.listElement) return;
 
-    if (transactions.length === 0) {
-        containerElement.innerHTML = '<p class="text-gray-600 text-center py-4">Nenhuma transação encontrada.</p>';
-        return;
+        this.listElement.innerHTML = ''; // Limpa a lista existente
+
+        if (transactions.length === 0) {
+            this.listElement.innerHTML = '<p class="text-center text-gray-500 dark:text-gray-400">Nenhuma transação encontrada.</p>';
+            return;
+        }
+
+        const ul = document.createElement('ul');
+        ul.className = 'divide-y divide-gray-200 dark:divide-gray-700';
+
+        transactions.forEach(transaction => {
+            const li = document.createElement('li');
+            li.className = 'py-4 flex justify-between items-center';
+            li.dataset.id = transaction.id; // Armazena o ID para fácil acesso
+
+            const amountClass = transaction.type === 'receita' ? 'text-green-600' : 'text-red-600';
+            const sign = transaction.type === 'receita' ? '+' : '-';
+
+            li.innerHTML = `
+                <div>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">${transaction.description}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">${formatDate(transaction.date)}</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <p class="text-lg font-bold ${amountClass}">
+                        ${sign}${formatCurrency(transaction.amount)}
+                    </p>
+                    <button class="edit-btn text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-600 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.586 3.586l-2.828 2.828.793.793 2.828-2.828-.793-.793zM10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0 2a10 10 0 100-20 10 10 0 000 20z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <button class="delete-btn text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            ul.appendChild(li);
+        });
+
+        this.listElement.appendChild(ul);
+        this._setupActionButtons();
     }
 
-    const table = document.createElement('table');
-    table.className = 'min-w-full bg-white rounded-lg shadow overflow-hidden';
-    table.innerHTML = `
-        <thead class="bg-gray-200">
-            <tr>
-                <th class="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">Descrição</th>
-                <th class="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">Valor</th>
-                <th class="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">Tipo</th>
-                <th class="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">Data</th>
-                <th class="py-3 px-4 text-left text-sm font-medium text-gray-600 uppercase tracking-wider">Ações</th>
-            </tr>
-        </thead>
-        <tbody id="transactions-table-body">
-            <!-- Transações serão inseridas aqui -->
-        </tbody>
-    `;
-
-    containerElement.appendChild(table);
-    const tbody = document.getElementById('transactions-table-body');
-
-    transactions.forEach(transaction => {
-        const row = document.createElement('tr');
-        row.className = 'border-b border-gray-200 hover:bg-gray-50';
-
-        const amountClass = transaction.type === 'income' ? 'text-green-600' : 'text-red-600';
-
-        row.innerHTML = `
-            <td class="py-3 px-4 text-sm text-gray-800">${transaction.description}</td>
-            <td class="py-3 px-4 text-sm ${amountClass}">${formatMoney(transaction.amount)}</td>
-            <td class="py-3 px-4 text-sm text-gray-800">${transaction.type === 'income' ? 'Receita' : 'Despesa'}</td>
-            <td class="py-3 px-4 text-sm text-gray-800">${formatDate(transaction.createdAt?.toDate().toISOString() || '')}</td>
-            <td class="py-3 px-4 text-sm">
-                <button data-id="${transaction.id}" class="edit-btn bg-blue-500 text-white px-3 py-1 rounded-lg text-xs mr-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    Editar
-                </button>
-                <button data-id="${transaction.id}" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-lg text-xs hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400">
-                    Excluir
-                </button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-
-    // Adiciona event listeners para os botões de editar e excluir
-    tbody.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const transactionId = event.target.dataset.id;
-            onEditCallback(transactionId);
+    /**
+     * Configura os event listeners para os botões de ação (editar, deletar).
+     * @private
+     */
+    _setupActionButtons() {
+        this.listElement.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const transactionId = event.currentTarget.closest('li').dataset.id;
+                this.onEdit(transactionId);
+            });
         });
-    });
 
-    tbody.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const transactionId = event.target.dataset.id;
-            onDeleteCallback(transactionId);
+        this.listElement.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const transactionId = event.currentTarget.closest('li').dataset.id;
+                this.onDelete(transactionId);
+            });
         });
-    });
+    }
 }
+
+export default TransactionList;

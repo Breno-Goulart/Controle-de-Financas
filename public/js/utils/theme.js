@@ -1,45 +1,31 @@
-// --- LÓGICA CENTRALIZADA DO TEMA ---
+/**
+ * @fileoverview Módulo de utilitários para gerenciamento de tema (claro/escuro).
+ * @author Breno Goulart
+ */
 
-// Esta função aplica o tema e atualiza o ícone do botão.
-const applyTheme = (theme) => {
-    const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-    const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+/**
+ * Aplica o tema salvo no localStorage ou o tema padrão do sistema.
+ */
+export function applyTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    if (theme === 'dark') {
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
         document.documentElement.classList.add('dark');
-        if (themeToggleLightIcon && themeToggleDarkIcon) {
-            themeToggleLightIcon.classList.remove('hidden');
-            themeToggleDarkIcon.classList.add('hidden');
-        }
     } else {
         document.documentElement.classList.remove('dark');
-        if (themeToggleLightIcon && themeToggleDarkIcon) {
-            themeToggleDarkIcon.classList.remove('hidden');
-            themeToggleLightIcon.classList.add('hidden');
-        }
     }
-    // Guarda a preferência para visitas futuras.
-    localStorage.setItem('theme', theme);
-};
+}
 
-// Esta função é chamada para definir o tema inicial da página.
-const initializeTheme = () => {
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    // Prioriza a escolha guardada, senão usa a do sistema.
-    applyTheme(savedTheme ? savedTheme : (systemPrefersDark ? 'dark' : 'light'));
-};
-
-// Adiciona o 'ouvinte de evento' para o clique no botão de tema.
-document.addEventListener('DOMContentLoaded', () => {
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
-            const isDarkMode = document.documentElement.classList.contains('dark');
-            applyTheme(isDarkMode ? 'light' : 'dark');
-        });
+/**
+ * Alterna o tema entre claro e escuro e salva a preferência no localStorage.
+ */
+export function toggleTheme() {
+    if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+    } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
     }
-});
-
-// Executa a inicialização do tema imediatamente para evitar o "flash" da cor errada.
-initializeTheme();
+}

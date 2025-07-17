@@ -1,67 +1,104 @@
-// js/components/transactionForm.js
-
-import { addTransaction, updateTransaction } from '../services/transaction.service.js';
-import { showLoading, hideLoading, showMessage } from './ui.js';
-
 /**
- * Inicializa o formulário de transações, configurando o listener de submissão.
- * @param {HTMLElement} formElement - O elemento do formulário HTML.
- * @param {object} [currentTransaction] - Objeto da transação atual para edição (opcional).
- * @param {function(): void} [onSuccessCallback] - Callback a ser executado após uma operação bem-sucedida.
+ * @fileoverview Componente de formulário para adicionar/editar transações.
+ * @author Breno Goulart
  */
-export function initTransactionForm(formElement, currentTransaction = null, onSuccessCallback = () => {}) {
-    if (!formElement) {
-        console.error("Erro: Elemento do formulário de transações não encontrado.");
-        return;
+
+import { mostrarToast } from '../utils/ui.js';
+
+class TransactionForm {
+    /**
+     * Construtor do TransactionForm.
+     * @param {string} formId - O ID do formulário no HTML.
+     * @param {Function} onSubmit - Função de callback a ser executada ao submeter o formulário.
+     */
+    constructor(formId, onSubmit) {
+        this.form = document.getElementById(formId);
+        this.onSubmit = onSubmit;
+        this.transactionId = null; // Para armazenar o ID da transação em caso de edição
+
+        if (this.form) {
+            this._setupEventListeners();
+        } else {
+            console.error(`Formulário com ID '${formId}' não encontrado.`);
+        }
     }
 
-    const descriptionInput = formElement.querySelector('#transaction-description');
-    const amountInput = formElement.querySelector('#transaction-amount');
-    const typeSelect = formElement.querySelector('#transaction-type');
-    const submitButton = formElement.querySelector('button[type="submit"]');
-
-    // Preenche o formulário se estiver em modo de edição
-    if (currentTransaction) {
-        descriptionInput.value = currentTransaction.description || '';
-        amountInput.value = currentTransaction.amount || '';
-        typeSelect.value = currentTransaction.type || 'expense';
-        submitButton.textContent = 'Atualizar Transação';
-    } else {
-        submitButton.textContent = 'Adicionar Transação';
+    /**
+     * Configura os event listeners para o formulário.
+     * @private
+     */
+    _setupEventListeners() {
+        this.form.addEventListener('submit', this._handleSubmit.bind(this));
     }
 
-    formElement.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Impede o envio padrão do formulário
+    /**
+     * Lida com a submissão do formulário.
+     * @param {Event} event - O evento de submissão.
+     * @private
+     */
+    _handleSubmit(event) {
+        event.preventDefault();
 
-        const description = descriptionInput.value.trim();
-        const amount = parseFloat(amountInput.value);
-        const type = typeSelect.value;
+        const type = this.form.querySelector('#transaction-type').value;
+        const amount = parseFloat(this.form.querySelector('#transaction-amount').value);
+        const description = this.form.querySelector('#transaction-description').value;
+        const date = this.form.querySelector('#transaction-date').value;
 
-        if (!description || isNaN(amount) || amount <= 0) {
-            showMessage('Por favor, preencha todos os campos corretamente.', 'error');
+        if (isNaN(amount) || amount <= 0) {
+            mostrarToast('Por favor, insira um valor válido para a transação.', 'warning');
+            return;
+        }
+        if (!description.trim()) {
+            mostrarToast('Por favor, insira uma descrição para a transação.', 'warning');
+            return;
+        }
+        if (!date) {
+            mostrarToast('Por favor, selecione uma data para a transação.', 'warning');
             return;
         }
 
-        showLoading();
-        try {
-            const transactionData = { description, amount, type };
-            if (currentTransaction && currentTransaction.id) {
-                await updateTransaction(currentTransaction.id, transactionData);
-                showMessage('Transação atualizada com sucesso!', 'success');
-            } else {
-                await addTransaction(transactionData);
-                showMessage('Transação adicionada com sucesso!', 'success');
-                // Limpa o formulário apenas após adicionar uma nova transação
-                descriptionInput.value = '';
-                amountInput.value = '';
-                typeSelect.value = 'expense';
-            }
-            onSuccessCallback(); // Executa o callback de sucesso
-        } catch (error) {
-            console.error("Erro na operação da transação:", error);
-            showMessage(`Erro ao salvar transação: ${error.message}`, 'error');
-        } finally {
-            hideLoading();
+        const transactionData = {
+            type,
+            amount,
+            description,
+            date,
+            id: this.transactionId // Inclui o ID se for uma edição
+        };
+
+        this.onSubmit(transactionData);
+        this.resetForm();
+    }
+
+    /**
+     * Preenche o formulário com os dados de uma transação para edição.
+     * @param {Object} transaction - O objeto da transação a ser editada.
+     */
+    fillFormForEdit(transaction) {
+        this.transactionId = transaction.id;
+        this.form.querySelector('#transaction-type').value = transaction.type;
+        this.form.querySelector('#transaction-amount').value = transaction.amount;
+        this.form.querySelector('#transaction-description').value = transaction.description;
+        this.form.querySelector('#transaction-date').value = transaction.date;
+
+        // Altera o texto do botão para indicar edição
+        const submitButton = this.form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.textContent = 'Atualizar Transação';
         }
-    });
+    }
+
+    /**
+     * Reseta o formulário para seus valores padrão.
+     */
+    resetForm() {
+        this.form.reset();
+        this.transactionId = null; // Limpa o ID da transação
+        // Restaura o texto do botão
+        const submitButton = this.form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.textContent = 'Adicionar Transação';
+        }
+    }
 }
+
+export default TransactionForm;
