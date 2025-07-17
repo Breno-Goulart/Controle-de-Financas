@@ -1,4 +1,4 @@
-import '../style.css'; // Adicionada esta linha
+import './css/style.css'; // Adicionada esta linha
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 
 // Início da alteração: Centralização da configuração do Firebase
 // Removido firebaseConfig e initializeApp, agora importados de firebaseConfig.js
-import { auth, db } from "./firebaseConfig.js"; // Importa auth e db do novo arquivo de configuração
+import { auth, db } => from "./firebaseConfig.js"; // Importa auth e db do novo arquivo de configuração
 import {
     onAuthStateChanged,
     signOut

@@ -1,4 +1,4 @@
-import '../style.css'; // Adicionada esta linha
+import './css/style.css'; // Adicionada esta linha
 // --- LÓGICA CENTRALIZADA DO TEMA ---
 
 // Esta função aplica o tema e atualiza o ícone do botão.

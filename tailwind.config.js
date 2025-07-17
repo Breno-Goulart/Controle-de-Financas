@@ -1,9 +1,8 @@
-// tailwind.config.js - CORRIGIDO
+// tailwind.config.js - VERSÃO ORGANIZADA
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./*.html",
-    "./js/**/*.js",
+    "./src/**/*.{html,js}", // Alteração principal aqui
   ],
   theme: {
     extend: {},

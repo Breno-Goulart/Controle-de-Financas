@@ -1,4 +1,4 @@
-import '../style.css'; // Adicionada esta linha
+import './css/style.css'; // Adicionada esta linha
 // js/lancamentos.js
 // Este arquivo gerencia a lógica da página de lançamentos, incluindo CRUD, filtros e resumo financeiro.
 
