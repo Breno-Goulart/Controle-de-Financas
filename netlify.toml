@@ -4,7 +4,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18" # Esta linha é importante
+  NODE_VERSION = "20" # Esta linha é importante
 
 [[redirects]]
   from = "/"
