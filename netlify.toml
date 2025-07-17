@@ -1,0 +1,27 @@
+[build]
+  publish = "public" # Isso diz ao Netlify para servir os arquivos da pasta 'public'
+
+[[headers]]
+  for = "/js/*.js" # Aplica a todos os arquivos .js dentro da pasta js/
+  [headers.values]
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "/js/pages/*.js" # Específico para arquivos dentro de js/pages/
+  [headers.values]
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "/js/components/*.js" # Específico para arquivos dentro de js/components/
+  [headers.values]
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "/js/services/*.js" # Específico para arquivos dentro de js/services/
+  [headers.values]
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "/js/utils/*.js" # Específico para arquivos dentro de js/utils/
+  [headers.values]
+    Content-Type = "application/javascript"
