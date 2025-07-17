@@ -1,3 +1,6 @@
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 // public/js/relatorio.js
 
 // Início da alteração: Centralização da configuração do Firebase
@@ -137,8 +140,7 @@ const exportToPDF = () => {
     exportLoader.classList.remove("hidden");
     exportStatus.textContent = "Gerando PDF...";
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    const doc = new jsPDF(); // Removida a desestruturação de window.jspdf
 
     const totalReceitas = reportData.filter(l => l.tipo === 'receita').reduce((sum, l) => sum + l.valor, 0);
     const totalDespesas = reportData.filter(l => l.tipo === 'despesa').reduce((sum, l) => sum + l.valor, 0);

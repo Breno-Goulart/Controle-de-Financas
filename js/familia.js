@@ -1,18 +1,9 @@
-// public/js/familia.js
-// Este arquivo contém todo o código JavaScript que foi movido de public/familia.html
-// Início do código JavaScript movido de public/familia.html
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { auth, db } from "./firebaseConfig.js";
 
-import { auth, db } from "./firebaseConfig.js"; // Importa auth e db do arquivo de configuração centralizado
-import {
-    onAuthStateChanged,
-    signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-    doc,
-    getDoc,
-    setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+// UI Elements
 const loader = document.getElementById("loader");
 const familiaContainer = document.getElementById("familiaContainer");
 const familiaForm = document.getElementById("familiaForm");
@@ -21,9 +12,12 @@ const salvarChaveButton = document.getElementById("salvarChaveButton");
 const criarChaveButton = document.getElementById("criarChaveButton");
 const feedbackMessage = document.getElementById("feedbackMessage");
 const logoutButton = document.getElementById("logoutButton");
+const logoutButtonFamilia = document.getElementById("logoutButtonFamilia");
+const userName = document.getElementById("userName");
 
 let feedbackTimeoutId;
 
+// Funções de feedback e formulário
 const showFeedback = (message, isError = false, autoHide = true) => {
     clearTimeout(feedbackTimeoutId);
     feedbackMessage.classList.remove("hidden");
@@ -47,31 +41,16 @@ const setFormSubmitting = (isSubmitting) => {
     salvarChaveButton.textContent = isSubmitting ? "Salvando..." : "Usar esta chave";
 };
 
-// Lógica principal na verificação de estado de autenticação
+// Lógica de Autenticação e Redirecionamento CORRIGIDA
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // Usuário está logado, verificar se já tem familiaId
-        try {
-            const userDocRef = doc(db, "users", user.uid);
-            const docSnap = await getDoc(userDocRef);
-
-            if (docSnap.exists() && docSnap.data().familiaId) {
-                // Se já tem, redireciona para o lancamentos.html
-                console.log("Usuário já tem familiaId. Redirecionando para lançamentos...");
-                window.location.href = "./lancamentos.html";
-            } else {
-                // Se não tem, mostra o formulário para configurar
-                loader.classList.add("hidden");
-                familiaContainer.classList.remove("hidden");
-            }
-        } catch (error) {
-            console.error("Erro ao buscar dados do usuário:", error);
-            showFeedback("Erro ao carregar seus dados. Tente recarregar a página.", true, false);
-            loader.classList.add("hidden");
-        }
+        // Se o utilizador estiver logado, mostramos sempre o formulário de família
+        // A lógica de redirecionamento automático foi removida
+        if(userName) userName.textContent = user.displayName || user.email;
+        loader.classList.add("hidden");
+        familiaContainer.classList.remove("hidden");
     } else {
-        // Usuário não está logado, redireciona para o login
-        console.log("Usuário não logado. Redirecionando para login...");
+        // Se o utilizador não estiver logado, redireciona para o login
         window.location.href = "login.html";
     }
 });
@@ -108,8 +87,14 @@ familiaForm.addEventListener("submit", async (e) => {
     showFeedback("Salvando sua chave de família...", false, false);
 
     try {
+        // IMPORTANTE: Primeiro, atualizamos o `familiaId` do utilizador
         const userDocRef = doc(db, "users", user.uid);
         await setDoc(userDocRef, { familiaId: chaveFamilia }, { merge: true });
+
+        // SEGUNDO: Garantimos que o documento da família existe na coleção "families"
+        const familyDocRef = doc(db, "families", chaveFamilia);
+        await setDoc(familyDocRef, { nome: `Família ${chaveFamilia}`, criadoEm: new Date() }, { merge: true });
+
 
         showFeedback("Chave salva com sucesso! Redirecionando para lançamentos...", false, false);
         setTimeout(() => {
@@ -129,16 +114,15 @@ familiaIdInput.addEventListener('input', () => {
     feedbackMessage.classList.add('hidden');
 });
 
-// Logout
-logoutButton.addEventListener("click", async (e) => {
+const handleLogout = async (e) => {
     e.preventDefault();
     try {
         await signOut(auth);
-        // onAuthStateChanged irá lidar com o redirecionamento
     } catch (error) {
         console.error("Erro ao fazer logout:", error);
-        showFeedback("Erro ao tentar sair.", true);
     }
-});
+}
 
-// Fim do código JavaScript movido
+// Logout
+if(logoutButton) logoutButton.addEventListener("click", handleLogout);
+if(logoutButtonFamilia) logoutButtonFamilia.addEventListener("click", handleLogout);
