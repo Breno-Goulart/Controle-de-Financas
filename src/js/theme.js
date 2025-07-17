@@ -1,4 +1,5 @@
-import '../css/style.css'; // Adicionada esta linha
+import '../css/style.css'; // Mantenha esta linha
+
 // --- LÓGICA CENTRALIZADA DO TEMA ---
 
 // Esta função aplica o tema e atualiza o ícone do botão.
@@ -6,18 +7,19 @@ const applyTheme = (theme) => {
     const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
     const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
 
+    // Garante que os ícones existem antes de tentar manipulá-los
+    if (!themeToggleLightIcon || !themeToggleDarkIcon) {
+        return;
+    }
+
     if (theme === 'dark') {
         document.documentElement.classList.add('dark');
-        if (themeToggleLightIcon && themeToggleDarkIcon) {
-            themeToggleLightIcon.classList.remove('hidden');
-            themeToggleDarkIcon.classList.add('hidden');
-        }
+        themeToggleLightIcon.classList.remove('hidden');
+        themeToggleDarkIcon.classList.add('hidden');
     } else {
         document.documentElement.classList.remove('dark');
-        if (themeToggleLightIcon && themeToggleDarkIcon) {
-            themeToggleDarkIcon.classList.remove('hidden');
-            themeToggleLightIcon.classList.add('hidden');
-        }
+        themeToggleDarkIcon.classList.remove('hidden');
+        themeToggleLightIcon.classList.add('hidden');
     }
     // Guarda a preferência para visitas futuras.
     localStorage.setItem('theme', theme);
@@ -31,8 +33,12 @@ const initializeTheme = () => {
     applyTheme(savedTheme ? savedTheme : (systemPrefersDark ? 'dark' : 'light'));
 };
 
-// Adiciona o 'ouvinte de evento' diretamente, sem esperar pelo DOMContentLoaded.
+// --- A PARTE MAIS IMPORTANTE DA CORREÇÃO ESTÁ AQUI ---
+
+// Procuramos o botão no documento.
 const themeToggleBtn = document.getElementById('theme-toggle');
+
+// Se o botão existir na página atual, adicionamos a funcionalidade de clique.
 if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', () => {
         const isDarkMode = document.documentElement.classList.contains('dark');
