@@ -1,3 +1,10 @@
+/* style.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Adicione esta linha para o nosso teste */
+body {
+    border: 10px solid red !important;
+}
