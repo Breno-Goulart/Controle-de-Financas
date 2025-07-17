@@ -1,10 +1,9 @@
 // app.js
 
 // Importa os serviços e componentes necessários
-// CORREÇÃO AQUI: Importa 'authService' (instância) em vez de 'AuthService' (classe)
-import { authService } from './services/auth.service.js'; // CORREÇÃO AQUI
-import { auth } from './services/firebaseConfig.js'; // Caminho corrigido e capitalização
-import { onTransactionsChanged, updateTransaction, deleteTransaction } from './services/transaction.service.js';
+import { authService } from './services/auth.service.js'; // Já corrigido
+// CORREÇÃO AQUI: Importa a instância 'transactionService'
+import { transactionService } from './services/transaction.service.js';
 import { renderTransactionList } from './components/transactionList.js';
 import { initTransactionForm } from './components/transactionForm.js';
 import { showLoading, hideLoading, showMessage, showConfirmModal } from './utils/ui.js';
@@ -30,7 +29,8 @@ function startListeningToTransactions() {
     }
 
     // Inicia a observação das transações e renderiza a lista
-    unsubscribeFromTransactions = onTransactionsChanged((transactions) => {
+    // CORREÇÃO AQUI: Usando 'transactionService.onTransactionsChanged'
+    unsubscribeFromTransactions = transactionService.onTransactionsChanged((transactions) => {
         renderTransactionList(
             transactions,
             transactionsListContainer,
@@ -49,7 +49,8 @@ function handleDeleteTransaction(transactionId) {
         async () => {
             showLoading();
             try {
-                await deleteTransaction(transactionId);
+                // CORREÇÃO AQUI: Usando 'transactionService.deleteTransaction'
+                await transactionService.deleteTransaction(transactionId);
                 showMessage('Transação excluída com sucesso!', 'success');
             } catch (error) {
                 console.error("Erro ao excluir transação:", error);
@@ -62,8 +63,6 @@ function handleDeleteTransaction(transactionId) {
 }
 
 // Função para lidar com a edição de uma transação
-// Por simplicidade, esta função pode abrir um modal ou reutilizar o formulário de adição
-// para preencher os dados da transação a ser editada.
 // Por simplicidade, esta função pode abrir um modal ou reutilizar o formulário de adição
 // para preencher os dados da transação a ser editada.
 function handleEditTransaction(transactionId) {
@@ -101,7 +100,6 @@ if (loginButton) {
 
         showLoading();
         try {
-            // CORREÇÃO AQUI: Usando 'authService' (instância)
             await authService.login(email, password);
             showMessage('Login realizado com sucesso!', 'success');
         } catch (error) {
@@ -126,7 +124,6 @@ if (logoutButton) {
     logoutButton.addEventListener('click', async () => {
         showLoading();
         try {
-            // CORREÇÃO AQUI: Usando 'authService' (instância)
             await authService.logout();
             showMessage('Logout realizado com sucesso!', 'success');
             // Remove o listener de transações ao deslogar
@@ -145,7 +142,6 @@ if (logoutButton) {
 
 // --- Lógica de Autenticação (onAuthStateChanged) ---
 // Este é o principal orquestrador da UI
-// CORREÇÃO AQUI: Usando 'authService' (instância)
 authService.onAuthStateChanged(user => {
     if (user) {
         // Usuário logado
