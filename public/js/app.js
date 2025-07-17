@@ -1,13 +1,13 @@
 // app.js
 
 // Importa os serviços e componentes necessários
-// CORREÇÕES NAS LINHAS ABAIXO: removido o 'js/' extra e corrigida a capitalização
+// CORREÇÃO AQUI: Importa 'authService' (instância) em vez de 'AuthService' (classe)
+import { authService } from './services/auth.service.js'; // CORREÇÃO AQUI
 import { auth } from './services/firebaseConfig.js'; // Caminho corrigido e capitalização
-import { AuthService } from './services/auth.service.js'; // CORREÇÃO AQUI
-import { onTransactionsChanged, updateTransaction, deleteTransaction } from './services/transaction.service.js'; // CORREÇÃO AQUI
-import { renderTransactionList } from './components/transactionList.js'; // CORREÇÃO AQUI
-import { initTransactionForm } from './components/transactionForm.js'; // CORREÇÃO AQUI
-import { showLoading, hideLoading, showMessage, showConfirmModal } from './utils/ui.js'; // CORREÇÃO AQUI (ui.js está em 'utils/')
+import { onTransactionsChanged, updateTransaction, deleteTransaction } from './services/transaction.service.js';
+import { renderTransactionList } from './components/transactionList.js';
+import { initTransactionForm } from './components/transactionForm.js';
+import { showLoading, hideLoading, showMessage, showConfirmModal } from './utils/ui.js';
 
 // Elementos do DOM
 const loginSection = document.getElementById('login-section');
@@ -64,6 +64,8 @@ function handleDeleteTransaction(transactionId) {
 // Função para lidar com a edição de uma transação
 // Por simplicidade, esta função pode abrir um modal ou reutilizar o formulário de adição
 // para preencher os dados da transação a ser editada.
+// Por simplicidade, esta função pode abrir um modal ou reutilizar o formulário de adição
+// para preencher os dados da transação a ser editada.
 function handleEditTransaction(transactionId) {
     // Em uma aplicação real, você buscaria os detalhes da transação pelo ID
     // e preencheria um formulário de edição.
@@ -99,7 +101,8 @@ if (loginButton) {
 
         showLoading();
         try {
-            await AuthService.login(email, password);
+            // CORREÇÃO AQUI: Usando 'authService' (instância)
+            await authService.login(email, password);
             showMessage('Login realizado com sucesso!', 'success');
         } catch (error) {
             console.error("Erro no login:", error);
@@ -123,7 +126,8 @@ if (logoutButton) {
     logoutButton.addEventListener('click', async () => {
         showLoading();
         try {
-            await AuthService.logout();
+            // CORREÇÃO AQUI: Usando 'authService' (instância)
+            await authService.logout();
             showMessage('Logout realizado com sucesso!', 'success');
             // Remove o listener de transações ao deslogar
             if (unsubscribeFromTransactions) {
@@ -141,7 +145,8 @@ if (logoutButton) {
 
 // --- Lógica de Autenticação (onAuthStateChanged) ---
 // Este é o principal orquestrador da UI
-AuthService.onAuthStateChanged(user => {
+// CORREÇÃO AQUI: Usando 'authService' (instância)
+authService.onAuthStateChanged(user => {
     if (user) {
         // Usuário logado
         if (loginSection) loginSection.classList.add('hidden');
