@@ -1,12 +1,13 @@
 // app.js
 
 // Importa os serviços e componentes necessários
-import { auth } from './services/firebaseConfig.js'; // Já corrigido na iteração anterior
+// CORREÇÕES NAS LINHAS ABAIXO: removido o 'js/' extra e corrigida a capitalização
+import { auth } from './services/firebaseConfig.js'; // Caminho corrigido e capitalização
 import { AuthService } from './services/auth.service.js'; // CORREÇÃO AQUI
 import { onTransactionsChanged, updateTransaction, deleteTransaction } from './services/transaction.service.js'; // CORREÇÃO AQUI
 import { renderTransactionList } from './components/transactionList.js'; // CORREÇÃO AQUI
 import { initTransactionForm } from './components/transactionForm.js'; // CORREÇÃO AQUI
-import { showLoading, hideLoading, showMessage, showConfirmModal } from './components/ui.js'; // CORREÇÃO AQUI
+import { showLoading, hideLoading, showMessage, showConfirmModal } from './utils/ui.js'; // CORREÇÃO AQUI (ui.js está em 'utils/')
 
 // Elementos do DOM
 const loginSection = document.getElementById('login-section');
