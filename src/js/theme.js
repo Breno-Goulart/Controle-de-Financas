@@ -31,16 +31,14 @@ const initializeTheme = () => {
     applyTheme(savedTheme ? savedTheme : (systemPrefersDark ? 'dark' : 'light'));
 };
 
-// Adiciona o 'ouvinte de evento' para o clique no botão de tema.
-document.addEventListener('DOMContentLoaded', () => {
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
-            const isDarkMode = document.documentElement.classList.contains('dark');
-            applyTheme(isDarkMode ? 'light' : 'dark');
-        });
-    }
-});
+// Adiciona o 'ouvinte de evento' diretamente, sem esperar pelo DOMContentLoaded.
+const themeToggleBtn = document.getElementById('theme-toggle');
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        applyTheme(isDarkMode ? 'light' : 'dark');
+    });
+}
 
 // Executa a inicialização do tema imediatamente para evitar o "flash" da cor errada.
 initializeTheme();
