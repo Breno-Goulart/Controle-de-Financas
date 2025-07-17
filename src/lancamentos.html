@@ -44,7 +44,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 900px; /* Ajustado para acomodar as colunas sem a coluna de ações */
+            min-width: 950px; /* Ajustado para acomodar a nova coluna de checkbox */
         }
         th, td {
             padding: 0.75rem; /* 12px */
@@ -255,12 +255,19 @@
         </section>
 
         <section aria-label="Lista de lançamentos" class="bg-white p-6 rounded-lg shadow-sm">
-            <h2 class="text-lg font-bold mb-4">Lançamentos</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold">Lançamentos</h2>
+                <button id="deleteSelectedBtn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition hidden">
+                    Excluir Selecionados
+                </button>
+            </div>
+
             <div class="table-container">
                 <table id="lancamentosTable">
                     <thead>
                         <tr>
-                            <th>Data da Parcela</th>
+                            <th class="w-12"><input type="checkbox" id="selectAllCheckbox" /></th>
+                            <th>Data</th>
                             <th>Descrição</th>
                             <th>Parcelas</th> <th>Valor</th>
                             <th>Tipo</th>
@@ -268,7 +275,7 @@
                             <th>Forma de Pagamento</th>
                             <th>Recorrência</th>
                             <th>Usuário</th>
-                            </tr>
+                        </tr>
                     </thead>
                     <tbody id="lancamentosTableBody">
                         </tbody>

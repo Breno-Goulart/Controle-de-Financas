@@ -104,6 +104,11 @@ let currentUserName = null;
 let currentUserId = null;
 let pendingConfirmAction = null; // Armazena a ação a ser confirmada (exclusão)
 
+// NOVOS ELEMENTOS E ESTADOS PARA SELEÇÃO E EXCLUSÃO EM MASSA
+const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+let selectedIds = new Set(); // Conjunto para armazenar IDs dos lançamentos selecionados
+
 // Função para exibir notificação toast (substitui a antiga showMessage)
 function mostrarToast(mensagem, type = "success") { // Adicionado 'type' para consistência
     if (!toast) return;
@@ -378,7 +383,7 @@ function renderLancamentos(lancamentos) {
         // Cria o cabeçalho do grupo (ex: "Julho de 2024")
         const groupHeader = document.createElement('tr');
         groupHeader.innerHTML = `
-            <td colspan="9" class="bg-gray-200 dark:bg-gray-700 font-bold text-gray-800 dark:text-white p-2 sticky top-0 z-10">
+            <td colspan="10" class="bg-gray-200 dark:bg-gray-700 font-bold text-gray-800 dark:text-white p-2 sticky top-0 z-10">
                 ${monthName.charAt(0).toUpperCase() + monthName.slice(1)} de ${year}
             </td>
         `;
@@ -394,7 +399,13 @@ function renderLancamentos(lancamentos) {
 
             const row = document.createElement("tr");
             row.classList.add('cursor-pointer', 'dark:hover:bg-gray-600');
-            row.addEventListener("click", () => fillFormModal(l));
+            row.addEventListener("click", (event) => {
+                // Previne que o clique na linha seja acionado se o clique veio do checkbox
+                if (event.target.classList.contains('row-checkbox')) {
+                    return;
+                }
+                fillFormModal(l); // Abre o modal e preenche com os dados do lançamento
+            });
 
             // ⭐ Ponto principal da alteração: a célula da data
             const dataCellHTML = `
@@ -405,6 +416,16 @@ function renderLancamentos(lancamentos) {
             `;
 
             row.innerHTML = `
+                <td>
+                    <input 
+                        type="checkbox" 
+                        class="row-checkbox" 
+                        data-id="${l.id}"
+                        data-tipo-lancamento="${l.tipoLancamento || 'normal'}"
+                        data-uid-parcelado="${l.uidParceladoOriginal || ''}"
+                        data-uid-recorrente="${l.uidRecorrenteOriginal || ''}"
+                    >
+                </td>
                 ${dataCellHTML}
                 <td>${l.descricao || "N/A"}</td>
                 <td>${l.tipoLancamento === "parcelado" ? `${l.parcelaAtual}/${l.totalParcelas}` : 'Não'}</td>
@@ -416,10 +437,46 @@ function renderLancamentos(lancamentos) {
                 <td>${l.nomeUsuario || '---'}</td>
             `;
 
+            // Adiciona listener para cada checkbox individual
+            const rowCheckbox = row.querySelector('.row-checkbox');
+            if (rowCheckbox) {
+                rowCheckbox.addEventListener('change', (event) => {
+                    if (event.target.checked) {
+                        selectedIds.add(event.target.dataset.id);
+                    } else {
+                        selectedIds.delete(event.target.dataset.id);
+                    }
+                    updateDeleteButtonState();
+                    // Se algum checkbox individual for desmarcado, desmarca o "selecionar todos"
+                    if (!event.target.checked && selectAllCheckbox) {
+                        selectAllCheckbox.checked = false;
+                    }
+                });
+            }
+
             lancamentosTableBody.appendChild(row);
         });
     });
+    // Após renderizar, atualiza o estado dos checkboxes e do botão de exclusão
+    updateCheckboxesAndButtonState();
 }
+
+// Função para atualizar o estado dos checkboxes e do botão de exclusão
+function updateCheckboxesAndButtonState() {
+    const allRowCheckboxes = document.querySelectorAll(".row-checkbox");
+    allRowCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectedIds.has(checkbox.dataset.id);
+    });
+    updateDeleteButtonState();
+}
+
+// Função para atualizar o estado do botão de exclusão
+function updateDeleteButtonState() {
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.classList.toggle('hidden', selectedIds.size === 0);
+    }
+}
+
 
 // Popula os filtros de ano dinamicamente
 const populateYearFilter = () => {
@@ -1050,7 +1107,10 @@ deleteLaunchBtn.addEventListener("click", () => {
 
                         // Removido console.logs de depuração dos documentos da série
                         /*
-                        console.log("Documento encontrado:", doc.id, doc.data());
+                        console.log("Snapshot da série retornou:", snapshot.size, "documentos.");
+                        snapshot.docs.forEach(doc => {
+                            console.log("Documento encontrado:", doc.id, doc.data());
+                        });
                         */
 
                         if (!snapshot.empty) {
@@ -1088,6 +1148,84 @@ deleteLaunchBtn.addEventListener("click", () => {
     }
 });
 // Fim da alteração: Refatoração completa do bloco deleteLaunchBtn.addEventListener
+
+// NOVO: Listener para o checkbox "Selecionar Todos"
+if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener("change", (event) => {
+        const isChecked = event.target.checked;
+        const allRowCheckboxes = document.querySelectorAll(".row-checkbox");
+        
+        selectedIds.clear(); // Limpa a seleção atual
+
+        allRowCheckboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+            if (isChecked) {
+                selectedIds.add(checkbox.dataset.id);
+            }
+        });
+        updateDeleteButtonState();
+    });
+}
+
+
+// NOVO: Listener para o botão de exclusão de múltiplos itens
+if (deleteSelectedBtn) {
+    deleteSelectedBtn.addEventListener("click", () => {
+        const checkboxes = document.querySelectorAll(".row-checkbox:checked");
+        if (checkboxes.length === 0) {
+            mostrarToast("Nenhum lançamento selecionado para exclusão.", "error");
+            return;
+        }
+
+        openConfirmModal(`Tem a certeza que quer excluir os ${checkboxes.length} lançamento(s) e as suas possíveis séries associadas?`, async () => {
+            
+            const batch = writeBatch(db);
+            const idsToDelete = new Set(); // Usar um Set para garantir IDs únicos
+
+            for (const checkbox of checkboxes) {
+                const id = checkbox.dataset.id;
+                const tipoLancamento = checkbox.dataset.tipoLancamento;
+                const uidParcelado = checkbox.dataset.uidParcelado;
+                const uidRecorrente = checkbox.dataset.uidRecorrente;
+                
+                idsToDelete.add(id); // Adiciona o ID do item selecionado
+
+                // Se o item for um mestre de uma série PARCELADA, encontra e adiciona todas as parcelas
+                if (tipoLancamento === 'parcelado' && uidParcelado === id) {
+                    const qSeries = query(collection(db, "artifacts", "controle-de-financas-6e2d9", "public", "data", "lancamentos"), where("uidParceladoOriginal", "==", uidParcelado));
+                    const seriesSnapshot = await getDocs(qSeries);
+                    seriesSnapshot.forEach(doc => idsToDelete.add(doc.id));
+                }
+
+                // Se o item for um mestre de uma série RECORRENTE, encontra e adiciona todas as ocorrências
+                if (tipoLancamento === 'recorrente' && uidRecorrente === id) {
+                    const qSeries = query(collection(db, "artifacts", "controle-de-financas-6e2d9", "public", "data", "lancamentos"), where("uidRecorrenteOriginal", "==", uidRecorrente));
+                    const seriesSnapshot = await getDocs(qSeries);
+                    seriesSnapshot.forEach(doc => idsToDelete.add(doc.id));
+                }
+            }
+
+            // Adiciona todos os IDs (individuais + séries) ao processo de exclusão
+            idsToDelete.forEach(id => {
+                const docRef = doc(db, "artifacts", "controle-de-financas-6e2d9", "public", "data", "lancamentos", id);
+                batch.delete(docRef);
+            });
+
+            try {
+                await batch.commit();
+                mostrarToast(`${idsToDelete.size} documento(s) foram excluídos.`);
+                
+                selectedIds.clear(); // Limpa a seleção após a exclusão
+                if (selectAllCheckbox) selectAllCheckbox.checked = false; // Desmarca o "selecionar todos"
+                updateDeleteButtonState(); // Atualiza o estado do botão de exclusão
+                await loadLancamentos(getCurrentFilters()); // Recarrega os lançamentos
+            } catch (error) {
+                console.error("Erro na exclusão inteligente em lote:", error);
+                mostrarToast("Ocorreu um erro ao excluir. Tente novamente.", "error");
+            }
+        });
+    });
+}
 
 
 // Event listeners para os filtros: Dispara loadLancamentos automaticamente
