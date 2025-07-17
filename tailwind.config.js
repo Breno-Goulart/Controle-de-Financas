@@ -1,5 +1,6 @@
+// tailwind.config.js - CORRIGIDO
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./*.html",
     "./js/**/*.js",
