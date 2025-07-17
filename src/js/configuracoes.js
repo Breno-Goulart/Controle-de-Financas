@@ -1,4 +1,4 @@
-import './css/style.css'; // Adicionada esta linha
+import '../css/style.css'; // Adicionada esta linha
 // public/js/configuracoes.js
 
 // Início da alteração: Centralização da configuração do Firebase

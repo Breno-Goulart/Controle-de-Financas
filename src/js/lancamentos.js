@@ -1,4 +1,4 @@
-import './css/style.css'; // Adicionada esta linha
+import '../css/style.css'; // Adicionada esta linha
 // js/lancamentos.js
 // Este arquivo gerencia a lógica da página de lançamentos, incluindo CRUD, filtros e resumo financeiro.
 
@@ -1068,10 +1068,7 @@ deleteLaunchBtn.addEventListener("click", () => {
 
                         // Removido console.logs de depuração dos documentos da série
                         /*
-                        console.log("Snapshot da série retornou:", snapshot.size, "documentos.");
-                        snapshot.docs.forEach(doc => {
-                            console.log("Documento encontrado:", doc.id, doc.data());
-                        });
+                        console.log("Documento encontrado:", doc.id, doc.data());
                         */
 
                         if (!snapshot.empty) {
