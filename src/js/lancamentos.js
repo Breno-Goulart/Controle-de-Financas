@@ -344,8 +344,7 @@ async function populateTransferUsers(currentAuthorUid = null) {
 }
 
 
-// Início da alteração: Refatoração da exibição na tabela (renderLancamentos)
-// Renderiza lançamentos na tabela, agrupando por mês e ano
+// Substitua a sua função renderLancamentos inteira por esta
 function renderLancamentos(lancamentos) {
     lancamentosTableBody.innerHTML = ""; // Limpa o corpo da tabela
     emptyState.classList.toggle("hidden", lancamentos.length > 0);
@@ -355,89 +354,72 @@ function renderLancamentos(lancamentos) {
     }
 
     // Agrupamento por ano e mês
-    const groupedLancamentos = {}; // { 'YYYY': { 'MM': [lancamento1, ...] } }
+    const groupedLancamentos = {}; // { 'YYYY-MM': [lancamento1, ...] }
 
     lancamentos.forEach(l => {
-        // Usar mes e ano para agrupar
-        const year = l.ano;
-        const month = l.mes - 1; // Convert to 0-indexed month
+        const date = l.data instanceof Timestamp ? l.data.toDate() : new Date(l.data);
+        const year = date.getFullYear();
+        const month = date.getMonth(); // 0-indexed month
+        const groupKey = `${year}-${String(month).padStart(2, '0')}`;
 
-        if (!groupedLancamentos[year]) {
-            groupedLancamentos[year] = {};
+        if (!groupedLancamentos[groupKey]) {
+            groupedLancamentos[groupKey] = [];
         }
-        if (!groupedLancamentos[year][month]) {
-            groupedLancamentos[year][month] = [];
-        }
-        groupedLancamentos[year][month].push(l);
+        groupedLancamentos[groupKey].push(l);
     });
 
-    // Ordena anos (decrescente) e meses (decrescente)
-    const sortedYears = Object.keys(groupedLancamentos).sort((a, b) => b - a);
+    // Ordena os grupos de meses (do mais recente para o mais antigo)
+    const sortedGroupKeys = Object.keys(groupedLancamentos).sort().reverse();
 
-    sortedYears.forEach(year => {
-        const sortedMonths = Object.keys(groupedLancamentos[year]).sort((a, b) => b - a);
+    sortedGroupKeys.forEach(groupKey => {
+        const [year, month] = groupKey.split('-').map(Number);
+        const monthName = new Date(year, month).toLocaleString('pt-BR', { month: 'long' });
+        
+        // Cria o cabeçalho do grupo (ex: "Julho de 2024")
+        const groupHeader = document.createElement('tr');
+        groupHeader.innerHTML = `
+            <td colspan="9" class="bg-gray-200 dark:bg-gray-700 font-bold text-gray-800 dark:text-white p-2 sticky top-0 z-10">
+                ${monthName.charAt(0).toUpperCase() + monthName.slice(1)} de ${year}
+            </td>
+        `;
+        lancamentosTableBody.appendChild(groupHeader);
+        
+        // Ordena os lançamentos dentro de cada mês
+        const lancamentosDoMes = groupedLancamentos[groupKey];
+        lancamentosDoMes.sort((a, b) => (b.data.toDate ? b.data.toDate() : new Date(b.data)) - (a.data.toDate ? a.data.toDate() : new Date(a.data)));
 
-        sortedMonths.forEach(month => {
-            // Início da alteração: Validação de ano e mês para o cabeçalho do grupo
-            const numericYear = parseInt(year);
-            const numericMonth = parseInt(month); // 'month' é o mês 0-indexado como string
+        lancamentosDoMes.forEach(l => {
+            const isReceita = l.tipo === "receita" || l.tipo === "entrada";
+            const textColor = isReceita ? "text-green-600" : "text-red-600";
 
-            // VERIFICAÇÃO CRÍTICA: Garante que ano e mês são números válidos para criar o Date
-            if (isNaN(numericYear) || isNaN(numericMonth)) {
-                console.warn(`[renderLancamentos] Pulando cabeçalho de grupo inválido devido a ano/mês ausente ou inválido. Ano=${year}, Mês=${month}.`);
-                return; // Pula este cabeçalho de grupo se for inválido
-            }
-            // Fim da alteração
+            const row = document.createElement("tr");
+            row.classList.add('cursor-pointer', 'dark:hover:bg-gray-600');
+            row.addEventListener("click", () => fillFormModal(l));
 
-            const monthName = new Date(numericYear, numericMonth).toLocaleString('pt-BR', { month: 'long' });
-            const groupHeader = document.createElement('tr');
-            // Colspan ajustado para 9, pois a coluna de Ações foi removida
-            groupHeader.innerHTML = `
-                <td colspan="9" class="bg-gray-200 font-bold text-gray-800 p-2 sticky top-0 z-10">
-                    ${monthName.charAt(0).toUpperCase() + monthName.slice(1)} de ${numericYear}
+            // ⭐ Ponto principal da alteração: a célula da data
+            const dataCellHTML = `
+                <td>
+                    ${formatDate(l)}
+                    ${l.tipoLancamento === 'parcelado' && l.dataOriginal ? `<br><small class="text-gray-500 dark:text-gray-400">Compra: ${formatDate({ data: l.dataOriginal })}</small>` : ''}
                 </td>
             `;
-            lancamentosTableBody.appendChild(groupHeader);
 
-            // Lançamentos já vêm ordenados por data do Firestore, mas pode-se ordenar novamente se necessário
-            groupedLancamentos[year][month].sort((a, b) => {
-                const dateA = a.data instanceof Timestamp ? a.data.toDate() : new Date(a.data);
-                const dateB = b.data instanceof Timestamp ? b.data.toDate() : new Date(b.data);
-                return dateB.getTime() - dateA.getTime();
-            });
+            row.innerHTML = `
+                ${dataCellHTML}
+                <td>${l.descricao || "N/A"}</td>
+                <td>${l.tipoLancamento === "parcelado" ? `${l.parcelaAtual}/${l.totalParcelas}` : 'Não'}</td>
+                <td class="${textColor}">${formatCurrency(l.valor)}</td>
+                <td>${l.tipo || "N/A"}</td>
+                <td>${l.categoria || "N/A"}</td>
+                <td>${l.formaPagamento || "N/A"}</td>
+                <td>${l.tipoLancamento === "recorrente" ? 'Sim' : 'Não'}</td>
+                <td>${l.nomeUsuario || '---'}</td>
+            `;
 
-            groupedLancamentos[year][month].forEach(l => {
-                const isReceita = l.tipo === "receita" || l.tipo === "entrada";
-                const textColor = isReceita ? "text-green-600" : "text-red-600";
-
-                const row = document.createElement("tr");
-                // Adiciona a classe 'cursor-pointer' para indicar clicabilidade
-                row.classList.add('cursor-pointer');
-                row.innerHTML = `
-                    <td>${formatDate(l)}</td>
-                    <td>${l.descricao || "N/A"}</td>
-                    <td>${l.tipoLancamento === "parcelado" ? `${l.parcelaAtual}/${l.totalParcelas}` : 'Não'}</td> <td class="${textColor}">${formatCurrency(l.valor)}</td>
-                    <td>${l.tipo || "N/A"}</td>
-                    <td>${l.categoria || "N/A"}</td>
-                    <td>${l.formaPagamento || "N/A"}</td>
-                    <td>${l.tipoLancamento === "recorrente" ? 'Sim' : 'Não'}</td> <td>${l.nomeUsuario || '---'}</td>
-                `;
-
-                // Event listener para a linha inteira da tabela
-                row.addEventListener("click", (event) => {
-                    // Previne que o clique na linha seja acionado se o clique veio de um botão dentro da linha (caso existam)
-                    if (event.target.tagName === 'BUTTON') {
-                        return;
-                    }
-                    fillFormModal(l); // Abre o modal e preenche com os dados do lançamento
-                });
-
-                lancamentosTableBody.appendChild(row);
-            });
+            lancamentosTableBody.appendChild(row);
         });
     });
 }
-// Fim da alteração: Refatoração da exibição na tabela (renderLancamentos)
 
 // Popula os filtros de ano dinamicamente
 const populateYearFilter = () => {
