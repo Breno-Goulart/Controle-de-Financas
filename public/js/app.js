@@ -1,12 +1,12 @@
 // app.js
 
 // Importa os serviços e componentes necessários
-import { authService } from './services/auth.service.js'; // Já corrigido
-// CORREÇÃO AQUI: Importa a instância 'transactionService'
+import { authService } from './services/auth.service.js';
 import { transactionService } from './services/transaction.service.js';
 import { renderTransactionList } from './components/transactionList.js';
 import { initTransactionForm } from './components/transactionForm.js';
-import { showLoading, hideLoading, showMessage, showConfirmModal } from './utils/ui.js';
+// CORREÇÃO AQUI: Importa apenas 'mostrarToast' que é a função exportada por ui.js
+import { mostrarToast } from './utils/ui.js';
 
 // Elementos do DOM
 const loginSection = document.getElementById('login-section');
@@ -29,7 +29,8 @@ function startListeningToTransactions() {
     }
 
     // Inicia a observação das transações e renderiza a lista
-    // CORREÇÃO AQUI: Usando 'transactionService.onTransactionsChanged'
+    // IMPORTANTE: A função 'hideLoading()' não está definida no ui.js fornecido.
+    // Você precisará implementá-la ou remover a chamada se não for usá-la.
     unsubscribeFromTransactions = transactionService.onTransactionsChanged((transactions) => {
         renderTransactionList(
             transactions,
@@ -37,51 +38,53 @@ function startListeningToTransactions() {
             handleDeleteTransaction, // Callback para exclusão
             handleEditTransaction   // Callback para edição
         );
-        hideLoading(); // Esconde o loading após carregar as transações
+        // hideLoading(); // COMENTADO: Função não exportada por ui.js. Remova o comentário se implementá-la.
     });
 }
 
 // Função para lidar com a exclusão de uma transação
 function handleDeleteTransaction(transactionId) {
-    showConfirmModal(
-        'Confirmar Exclusão',
-        'Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.',
-        async () => {
-            showLoading();
-            try {
-                // CORREÇÃO AQUI: Usando 'transactionService.deleteTransaction'
-                await transactionService.deleteTransaction(transactionId);
-                showMessage('Transação excluída com sucesso!', 'success');
-            } catch (error) {
+    // IMPORTANTE: A função 'showConfirmModal()' não está definida no ui.js fornecido.
+    // Você precisará implementá-la ou remover a chamada se não for usá-la.
+    // showConfirmModal(
+    //     'Confirmar Exclusão',
+    //     'Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.',
+    //     async () => {
+    //         showLoading(); // COMENTADO: Função não exportada por ui.js.
+    //         try {
+    //             await transactionService.deleteTransaction(transactionId);
+    //             mostrarToast('Transação excluída com sucesso!', 'success'); // CORREÇÃO AQUI
+    //         } catch (error) {
+    //             console.error("Erro ao excluir transação:", error);
+    //             mostrarToast(`Erro ao excluir transação: ${error.message}`, 'error'); // CORREÇÃO AQUI
+    //         } finally {
+    //             hideLoading(); // COMENTADO: Função não exportada por ui.js.
+    //         }
+    //     }
+    // );
+
+    // Alternativa simples caso não vá implementar showConfirmModal agora:
+    if (confirm('Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.')) {
+        // showLoading(); // COMENTADO
+        transactionService.deleteTransaction(transactionId)
+            .then(() => {
+                mostrarToast('Transação excluída com sucesso!', 'success'); // CORREÇÃO AQUI
+            })
+            .catch(error => {
                 console.error("Erro ao excluir transação:", error);
-                showMessage(`Erro ao excluir transação: ${error.message}`, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-    );
+                mostrarToast(`Erro ao excluir transação: ${error.message}`, 'error'); // CORREÇÃO AQUI
+            })
+            .finally(() => {
+                // hideLoading(); // COMENTADO
+            });
+    }
 }
 
 // Função para lidar com a edição de uma transação
-// Por simplicidade, esta função pode abrir um modal ou reutilizar o formulário de adição
-// para preencher os dados da transação a ser editada.
 function handleEditTransaction(transactionId) {
-    // Em uma aplicação real, você buscaria os detalhes da transação pelo ID
-    // e preencheria um formulário de edição.
-    // Por enquanto, vamos apenas logar o ID e mostrar uma mensagem.
-    showMessage(`Funcionalidade de edição para a transação ${transactionId} será implementada em breve!`, 'info');
+    // CORREÇÃO AQUI: Usando 'mostrarToast'
+    mostrarToast(`Funcionalidade de edição para a transação ${transactionId} será implementada em breve!`, 'info');
     console.log(`Editar transação com ID: ${transactionId}`);
-
-    // Exemplo de como você poderia integrar a edição com o transactionForm:
-    // Você precisaria de um mecanismo para obter os dados da transação pelo ID
-    // e passá-los para initTransactionForm.
-    // const transactionToEdit = transactions.find(t => t.id === transactionId);
-    // if (transactionToEdit) {
-    //     initTransactionForm(transactionFormElement, transactionToEdit, () => {
-    //         // Callback após a edição bem-sucedida
-    //         // Fechar modal de edição, etc.
-    //     });
-    // }
 }
 
 
@@ -94,26 +97,28 @@ if (loginButton) {
         const password = passwordInput.value.trim();
 
         if (!email || !password) {
-            showMessage('Por favor, insira e-mail e senha.', 'error');
+            // CORREÇÃO AQUI: Usando 'mostrarToast'
+            mostrarToast('Por favor, insira e-mail e senha.', 'error');
             return;
         }
 
-        showLoading();
+        // showLoading(); // COMENTADO: Função não exportada por ui.js.
         try {
             await authService.login(email, password);
-            showMessage('Login realizado com sucesso!', 'success');
+            // CORREÇÃO AQUI: Usando 'mostrarToast'
+            mostrarToast('Login realizado com sucesso!', 'success');
         } catch (error) {
             console.error("Erro no login:", error);
             // Exibir mensagem de erro específica para o usuário
             if (error.code === 'auth/invalid-email') {
-                showMessage('E-mail inválido.', 'error');
+                mostrarToast('E-mail inválido.', 'error'); // CORREÇÃO AQUI
             } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                showMessage('E-mail ou senha incorretos.', 'error');
+                mostrarToast('E-mail ou senha incorretos.', 'error'); // CORREÇÃO AQUI
             } else {
-                showMessage(`Erro no login: ${error.message}`, 'error');
+                mostrarToast(`Erro no login: ${error.message}`, 'error'); // CORREÇÃO AQUI
             }
         } finally {
-            hideLoading();
+            // hideLoading(); // COMENTADO: Função não exportada por ui.js.
         }
     });
 }
@@ -122,10 +127,11 @@ if (loginButton) {
 // Listener para o botão de logout
 if (logoutButton) {
     logoutButton.addEventListener('click', async () => {
-        showLoading();
+        // showLoading(); // COMENTADO: Função não exportada por ui.js.
         try {
             await authService.logout();
-            showMessage('Logout realizado com sucesso!', 'success');
+            // CORREÇÃO AQUI: Usando 'mostrarToast'
+            mostrarToast('Logout realizado com sucesso!', 'success');
             // Remove o listener de transações ao deslogar
             if (unsubscribeFromTransactions) {
                 unsubscribeFromTransactions();
@@ -133,9 +139,10 @@ if (logoutButton) {
             }
         } catch (error) {
             console.error("Erro ao deslogar:", error);
-            showMessage(`Erro ao deslogar: ${error.message}`, 'error');
+            // CORREÇÃO AQUI: Usando 'mostrarToast'
+            mostrarToast(`Erro ao deslogar: ${error.message}`, 'error');
         } finally {
-            hideLoading();
+            // hideLoading(); // COMENTADO: Função não exportada por ui.js.
         }
     });
 }
@@ -149,7 +156,7 @@ authService.onAuthStateChanged(user => {
         if (appSection) appSection.classList.remove('hidden');
         if (currentUserEmailSpan) currentUserEmailSpan.textContent = user.email;
 
-        showLoading(); // Mostra o loading enquanto as transações são carregadas
+        // showLoading(); // COMENTADO: Função não exportada por ui.js.
         startListeningToTransactions(); // Inicia a observação das transações
         initTransactionForm(transactionFormElement); // Inicializa o formulário de transações
     } else {
@@ -157,9 +164,9 @@ authService.onAuthStateChanged(user => {
         if (loginSection) loginSection.classList.remove('hidden');
         if (appSection) appSection.classList.add('hidden');
         if (currentUserEmailSpan) currentUserEmailSpan.textContent = '';
-        hideLoading(); // Esconde o loading se não houver usuário logado
+        // hideLoading(); // COMENTADO: Função não exportada por ui.js.
     }
 });
 
 // Inicialização (garante que o loading seja escondido se não houver autenticação inicial)
-hideLoading();
+// hideLoading(); // COMENTADO: Função não exportada por ui.js.
