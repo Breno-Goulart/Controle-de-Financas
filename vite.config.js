@@ -1,13 +1,12 @@
-// vite.config.js - VERSÃO ORGANIZADA
+// vite.config.js - VERSÃO FINAL E CORRIGIDA
 const { resolve } = require('path');
 
 module.exports = {
-  // Adicione esta linha para dizer ao Vite onde está o nosso código-fonte
-  root: 'src',
-
+  // Removemos a propriedade 'root' para evitar confusão no build.
+  // Todos os caminhos agora são lidos a partir da pasta principal.
   build: {
-    // E esta linha para que o resultado final vá para a pasta 'dist' principal
-    outDir: '../dist',
+    // A pasta de saída será 'dist', criada na raiz do projeto.
+    outDir: 'dist',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'src/index.html'),
