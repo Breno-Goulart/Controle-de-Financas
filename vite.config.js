@@ -1,9 +1,13 @@
-// vite.config.js - CORRIGIDO
+// vite.config.js - VERSÃO CORRIGIDA E FINAL
 const { resolve } = require('path');
 
 module.exports = {
   build: {
     rollupOptions: {
+      // Adicione esta seção para tratar o 'crypto' como externo
+      external: [
+        'crypto',
+      ],
       input: {
         main: resolve(__dirname, 'index.html'),
         cadastro: resolve(__dirname, 'cadastro.html'),
