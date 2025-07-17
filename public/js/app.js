@@ -1,7 +1,7 @@
 // app.js
 
 // Importa os serviços e componentes necessários
-import { auth } from './js/services/firebase.config.js';
+import { auth } from './services/firebaseConfig.js'; // CORREÇÃO AQUI: Removido o 'js/' extra e corrigida a capitalização do 'firebaseConfig'
 import { AuthService } from './js/services/auth.service.js';
 import { onTransactionsChanged, updateTransaction, deleteTransaction } from './js/services/transaction.service.js';
 import { renderTransactionList } from './js/components/transactionList.js';
