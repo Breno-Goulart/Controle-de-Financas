@@ -24,14 +24,19 @@
             border: 0;
         }
     </style>
+    <!-- Início da alteração: Removido o script inline de tema -->
+    <!-- O script inline de tema foi movido para public/js/theme.js -->
+    <!-- Fim da alteração -->
 </head>
 <body
     class="bg-gray-100 flex items-center justify-center min-h-screen"
 >
+    <!-- Loader -->
     <div id="loader" class="text-center hidden">
         <p class="text-gray-600"><span role="status">Verificando sessão...</span></p>
     </div>
 
+    <!-- Container do Login -->
     <div
         id="loginContainer"
         class="bg-white p-8 md:p-10 rounded-xl shadow-2xl w-full max-w-md m-4 hidden"
@@ -118,6 +123,8 @@
     </div>
 
     <script type="module" src="./js/login.js"></script>
+    <!-- Início da alteração: Adicionada a chamada para o script de tema externo -->
     <script type="module" src="./js/theme.js"></script>
+    <!-- Fim da alteração: Adicionada a chamada para o script de tema externo -->
 </body>
 </html>

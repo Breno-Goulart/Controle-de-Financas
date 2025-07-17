@@ -9,6 +9,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <style> body { font-family: 'Inter', sans-serif; } </style>
+    <!-- Início da alteração: Removido o script inline de tema -->
+    <!-- O script inline de tema foi movido para public/js/theme.js -->
+    <!-- Fim da alteração -->
 </head>
 <body class="bg-gray-100 dark:bg-gray-900">
     <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-20">
@@ -79,6 +82,8 @@
     </main>
 
     <script type="module" src="./js/relatorio.js"></script>
+    <!-- Início da alteração: Adicionada a chamada para o script de tema externo -->
     <script type="module" src="./js/theme.js"></script>
+    <!-- Fim da alteração: Adicionada a chamada para o script de tema externo -->
 </body>
 </html>

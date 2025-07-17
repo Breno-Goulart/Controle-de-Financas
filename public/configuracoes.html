@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt-br" class=""> <head>
+<html lang="pt-br" class=""> <!-- A classe 'dark' será adicionada aqui -->
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Minhas Configurações</title>
@@ -19,12 +20,18 @@
             flex-shrink: 0;
         }
     </style>
+    <!-- Início da alteração: Removido o script inline de tema -->
+    <!-- O script inline de tema foi movido para public/js/theme.js -->
+    <!-- Fim da alteração -->
 </head>
 <body class="bg-gray-100 dark:bg-gray-900">
+    <!-- Header -->
     <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-20">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-6">
+                <!-- Início da correção: Link principal para lancamentos.html -->
                 <a href="./lancamentos.html" class="text-xl font-bold text-gray-800 dark:text-white">Controle Financeiro</a>
+                <!-- Fim da correção: Link principal para lancamentos.html -->
                 <a href="./lancamentos.html" class="text-sm font-medium text-gray-500 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">Lançamentos</a>
                 <a href="./historico.html" class="text-sm font-medium text-gray-500 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">Histórico</a>
             </div>
@@ -41,15 +48,19 @@
         </nav>
     </header>
 
+    <!-- Main Content -->
     <main class="container mx-auto p-4 md:p-6">
+        <!-- Loader Principal -->
         <div id="loader" class="text-center py-10">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p class="text-gray-600 dark:text-gray-400" role="status">Carregando suas configurações...</p>
         </div>
 
+        <!-- Conteúdo Principal -->
         <div id="mainContent" class="hidden max-w-4xl mx-auto space-y-6">
             <h2 class="text-3xl font-bold text-gray-800 dark:text-white">Configurações da Conta</h2>
 
+            <!-- Card de Informações do Perfil -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
                 <h3 class="text-lg font-bold text-gray-800 dark:text-white border-b dark:border-gray-600 pb-2 mb-4">Informações do Perfil</h3>
                 <form id="profileForm" class="space-y-4">
@@ -72,6 +83,7 @@
                 </form>
             </div>
 
+            <!-- Card de Segurança -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
                 <h3 class="text-lg font-bold text-gray-800 dark:text-white border-b dark:border-gray-600 pb-2 mb-4">Segurança</h3>
                 <form id="emailForm" class="space-y-4 mb-6">
@@ -111,17 +123,20 @@
                 </form>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+            <!-- Card de Família -->
+             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
                 <h3 class="text-lg font-bold text-gray-800 dark:text-white border-b dark:border-gray-600 pb-2 mb-4">Configurações de Família</h3>
                 <form id="familyForm" class="space-y-4">
                     <div>
                         <label for="familiaId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Chave da Família (familiaId)</label>
                         <input type="text" id="familiaId" required class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 font-mono">
+                        <!-- Início da alteração: Adição do parágrafo com link para criar nova chave de família -->
                         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                             Não tem uma chave ou quer criar um novo grupo?
                             <a href="./familia.html" class="font-medium text-blue-600 hover:underline dark:text-blue-400">Clique aqui para criar uma nova chave.</a>
                         </p>
-                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Atenção: alterar esta chave mudará o grupo de finanças que você visualiza.</p>
+                        <!-- Fim da alteração -->
+                         <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Atenção: alterar esta chave mudará o grupo de finanças que você visualiza.</p>
                     </div>
                     <div class="text-right">
                         <button type="submit" class="min-w-[150px] bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition disabled:opacity-50 flex items-center justify-center">
@@ -134,6 +149,7 @@
         </div>
     </main>
 
+    <!-- Modal de Reautenticação -->
     <div id="reauthModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30 p-4">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm">
             <div class="p-6">
@@ -153,12 +169,15 @@
         </div>
     </div>
 
+    <!-- Toast de Feedback -->
     <div id="toast" class="hidden fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg z-50 flex items-center">
         <span id="toastIcon" class="mr-2"></span>
         <span id="toastMessage"></span>
     </div>
 
     <script type="module" src="./js/configuracoes.js"></script>
+    <!-- Início da alteração: Adicionada a chamada para o script de tema externo -->
     <script type="module" src="./js/theme.js"></script>
+    <!-- Fim da alteração: Adicionada a chamada para o script de tema externo -->
 </body>
 </html>
