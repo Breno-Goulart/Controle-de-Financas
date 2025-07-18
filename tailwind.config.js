@@ -1,10 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // Esta linha é a mais importante para o tema funcionar
+  // A linha mais importante que faltava:
   darkMode: 'class',
 
   content: [
-    // Isto garante que o Tailwind analisa todos os seus ficheiros
+    // Garante que o Tailwind analisa todos os seus ficheiros
     './src/**/*.{html,js}',
   ],
   theme: {
