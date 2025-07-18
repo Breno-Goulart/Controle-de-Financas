@@ -58,6 +58,10 @@ const formatDate = (timestamp) => {
     // A Cloud Function agora retorna ISO strings, então parseamos
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp);
+    // Garante que a data seja válida antes de formatar
+    if (isNaN(date.getTime())) {
+        return 'Data Inválida';
+    }
     return date.toLocaleDateString('pt-BR');
 };
 const formatCurrency = (value) => (typeof value === 'number') ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ 0,00';
@@ -186,7 +190,8 @@ exportPdfBtn.addEventListener("click", async () => {
     const endDate = endDateInput.value;
     doc.text(`Período: ${formatDate(startDate)} a ${formatDate(endDate)}`, 14, 30);
 
-    const tableColumn = ["Data", "Descrição", "Categoria", "Tipo", "Valor", "Recorrência", "Usuário", "Obs."];
+    // MODIFICADO: Adicionadas colunas "Data Original" e "Data Fim Recorrência"
+    const tableColumn = ["Data", "Descrição", "Categoria", "Tipo", "Parcelas", "Valor", "Recorrência", "Data Original", "Data Fim Recorrência", "Usuário", "Obs."];
     const tableRows = [];
     filteredData.forEach(item => {
         const itemData = [
@@ -194,8 +199,13 @@ exportPdfBtn.addEventListener("click", async () => {
             item.descricao || 'N/A',
             item.categoria || 'N/A',
             item.tipo || 'N/A',
+            // Lógica para exibir parcelas
+            item.tipoLancamento === "parcelado" ? `${item.parcelaAtual}/${item.totalParcelas}` : 'Não Aplicável',
             formatCurrency(item.valor),
             item.tipoLancamento === "recorrente" ? 'Sim' : 'Não',
+            // NOVO: Adiciona Data Original e Data Fim Recorrência (garante 'N/A' se o campo não existir ou for nulo)
+            item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A',
+            item.dataFim ? formatDate(item.dataFim) : 'N/A',
             item.nomeUsuario || '---', // Usa o nome do usuário já mapeado
             item.observacao || ''
         ];
@@ -208,7 +218,23 @@ exportPdfBtn.addEventListener("click", async () => {
         startY: 35,
         theme: 'striped',
         headStyles: { fillColor: [22, 160, 133] },
-        columnStyles: { 7: { cellWidth: 40 } } // Ajustado para a nova coluna de Obs.
+        // MODIFICADO: Ajustado o columnStyles para a nova quantidade de colunas
+        // A coluna "Obs." agora é a última, então seu índice mudou.
+        // Adicionando larguras para as novas colunas de data para melhor visualização.
+        columnStyles: {
+            // Índices baseados na nova `tableColumn`
+            0: { cellWidth: 15 }, // Data
+            1: { cellWidth: 30 }, // Descrição
+            2: { cellWidth: 20 }, // Categoria
+            3: { cellWidth: 15 }, // Tipo
+            4: { cellWidth: 15 }, // Parcelas
+            5: { cellWidth: 20 }, // Valor
+            6: { cellWidth: 15 }, // Recorrência
+            7: { cellWidth: 18 }, // Data Original
+            8: { cellWidth: 18 }, // Data Fim Recorrência
+            9: { cellWidth: 20 }, // Usuário
+            10: { cellWidth: 40 } // Obs.
+        }
     });
 
     const finalY = doc.lastAutoTable.finalY || 50;
@@ -249,8 +275,9 @@ exportExcelBtn.addEventListener("click", async () => {
         "Parcela Atual": item.parcelaAtual || '',
         "Total Parcelas": item.totalParcelas || '',
         Frequência: item.frequencia || '',
-        "Data Original": item.dataOriginal ? formatDate(item.dataOriginal) : '',
-        "Data Fim Recorrência": item.dataFim ? formatDate(item.dataFim) : '',
+        // NOVO: Adiciona Data Original e Data Fim Recorrência (garante 'N/A' se o campo não existir ou for nulo)
+        "Data Original": item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A',
+        "Data Fim Recorrência": item.dataFim ? formatDate(item.dataFim) : 'N/A',
         Usuário: item.nomeUsuario || '---',
         Observação: item.observacao || ''
     }));
