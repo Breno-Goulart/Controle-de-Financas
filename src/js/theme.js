@@ -1,16 +1,11 @@
-import '../css/style.css'; // Mantenha esta linha
+// Substitua o conteúdo de theme.js por este código
+import '../css/style.css';
 
-// --- LÓGICA CENTRALIZADA DO TEMA ---
-
-// Esta função aplica o tema e atualiza o ícone do botão.
 const applyTheme = (theme) => {
     const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
     const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
 
-    // Garante que os ícones existem antes de tentar manipulá-los
-    if (!themeToggleLightIcon || !themeToggleDarkIcon) {
-        return;
-    }
+    if (!themeToggleLightIcon || !themeToggleDarkIcon) return;
 
     if (theme === 'dark') {
         document.documentElement.classList.add('dark');
@@ -21,24 +16,16 @@ const applyTheme = (theme) => {
         themeToggleDarkIcon.classList.remove('hidden');
         themeToggleLightIcon.classList.add('hidden');
     }
-    // Guarda a preferência para visitas futuras.
     localStorage.setItem('theme', theme);
 };
 
-// Esta função é chamada para definir o tema inicial da página.
 const initializeTheme = () => {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    // Prioriza a escolha guardada, senão usa a do sistema.
     applyTheme(savedTheme ? savedTheme : (systemPrefersDark ? 'dark' : 'light'));
 };
 
-// --- A PARTE MAIS IMPORTANTE DA CORREÇÃO ESTÁ AQUI ---
-
-// Procuramos o botão no documento.
 const themeToggleBtn = document.getElementById('theme-toggle');
-
-// Se o botão existir na página atual, adicionamos a funcionalidade de clique.
 if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', () => {
         const isDarkMode = document.documentElement.classList.contains('dark');
@@ -46,5 +33,4 @@ if (themeToggleBtn) {
     });
 }
 
-// Executa a inicialização do tema imediatamente para evitar o "flash" da cor errada.
 initializeTheme();
