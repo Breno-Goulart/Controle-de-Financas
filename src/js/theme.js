@@ -1,13 +1,10 @@
 import '../css/style.css';
 
-// --- LÓGICA CENTRALIZADA DO TEMA ---
-
-// Esta função aplica o tema e atualiza o ícone do botão.
+// A função 'applyTheme' permanece a mesma.
 const applyTheme = (theme) => {
     const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
     const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
 
-    // Garante que os ícones existem antes de tentar manipulá-los
     if (!themeToggleLightIcon || !themeToggleDarkIcon) {
         return;
     }
@@ -21,30 +18,28 @@ const applyTheme = (theme) => {
         themeToggleDarkIcon.classList.remove('hidden');
         themeToggleLightIcon.classList.add('hidden');
     }
-    // Guarda a preferência para visitas futuras.
     localStorage.setItem('theme', theme);
 };
 
-// Esta função é chamada para definir o tema inicial da página.
+// A função 'initializeTheme' permanece a mesma.
 const initializeTheme = () => {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    // Prioriza a escolha guardada, senão usa a do sistema.
     applyTheme(savedTheme ? savedTheme : (systemPrefersDark ? 'dark' : 'light'));
 };
 
-// --- A LÓGICA CORRIGIDA ---
+// --- CORREÇÃO: Executar apenas quando o DOM estiver pronto ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Agora, procuramos o botão e adicionamos o evento de clique aqui dentro.
+    const themeToggleBtn = document.getElementById('theme-toggle');
 
-// Procuramos o botão no documento.
-const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            applyTheme(isDarkMode ? 'light' : 'dark');
+        });
+    }
 
-// Se o botão existir na página atual, adicionamos a funcionalidade de clique.
-if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-        const isDarkMode = document.documentElement.classList.contains('dark');
-        applyTheme(isDarkMode ? 'light' : 'dark');
-    });
-}
-
-// Executa a inicialização do tema imediatamente.
-initializeTheme();
+    // A inicialização do tema também deve ocorrer aqui para garantir que os ícones sejam encontrados.
+    initializeTheme();
+});
