@@ -1,20 +1,18 @@
 {
   "name": "controle-financeiro",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --config vite.config.js",
+    "build": "vite build --config vite.config.js",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.4",
-    "vite": "^5.3.1"
+    "vite": "^5.2.0"
   },
   "dependencies": {
+    "firebase": "^10.12.2",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "xlsx": "^0.18.5"

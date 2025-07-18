@@ -1,10 +1,8 @@
-# netlify.toml
 [build]
-  # Comando que o Netlify irá executar.
   command = "npm run build"
-  # Pasta que o Netlify irá publicar.
   publish = "dist"
 
-[build.environment]
-  # Garante que o Netlify use uma versão moderna do Node.js.
-  NODE_VERSION = "20"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

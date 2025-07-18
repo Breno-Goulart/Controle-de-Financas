@@ -1,23 +1,19 @@
 // vite.config.js
+import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  // Não definimos a propriedade 'root', para que a raiz do projeto seja o padrão.
   build: {
-    // A pasta de saída será 'dist', criada na raiz do projeto.
-    outDir: 'dist',
     rollupOptions: {
-      // Mapeamos cada arquivo HTML usando caminhos relativos simples
-      // a partir da pasta principal do projeto.
       input: {
-        main: 'src/index.html',
-        login: 'src/login.html',
-        cadastro: 'src/cadastro.html',
-        familia: 'src/familia.html',
-        lancamentos: 'src/lancamentos.html',
-        configuracoes: 'src/configuracoes.html',
-        historico: 'src/historico.html',
-        relatorio: 'src/relatorio.html',
+        main: resolve(__dirname, 'src/index.html'),
+        login: resolve(__dirname, 'src/login.html'),
+        cadastro: resolve(__dirname, 'src/cadastro.html'),
+        familia: resolve(__dirname, 'src/familia.html'),
+        lancamentos: resolve(__dirname, 'src/lancamentos.html'),
+        historico: resolve(__dirname, 'src/historico.html'),
+        relatorio: resolve(__dirname, 'src/relatorio.html'),
+        configuracoes: resolve(__dirname, 'src/configuracoes.html'),
       },
     },
   },
