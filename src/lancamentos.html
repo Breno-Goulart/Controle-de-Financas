@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" class=""> <!-- Adicionado class="" para que o JS possa controlar o tema -->
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -145,7 +145,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white">
     <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-20">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-4 md:gap-6">
@@ -170,26 +170,26 @@
     <main class="container mx-auto p-4 md:p-6 space-y-6">
         <div id="message" role="alert" class="hidden mb-4 p-3 rounded text-white"></div>
 
-        <section aria-label="Resumo financeiro" class="bg-white p-6 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-green-100 p-4 rounded shadow text-center">
-                <h3 class="text-lg font-semibold text-green-700">Total Receitas</h3>
-                <p id="totalReceitas" class="text-2xl font-bold text-green-800">R$ 0,00</p>
+        <section aria-label="Resumo financeiro" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-green-100 dark:bg-green-900/50 p-4 rounded shadow text-center">
+                <h3 class="text-lg font-semibold text-green-700 dark:text-green-300">Total Receitas</h3>
+                <p id="totalReceitas" class="text-2xl font-bold text-green-800 dark:text-green-200">R$ 0,00</p>
             </div>
-            <div class="bg-red-100 p-4 rounded shadow text-center">
-                <h3 class="text-lg font-semibold text-red-700">Total Despesas</h3>
-                <p id="totalDespesas" class="text-2xl font-bold text-red-800">R$ 0,00</p>
+            <div class="bg-red-100 dark:bg-red-900/50 p-4 rounded shadow text-center">
+                <h3 class="text-lg font-semibold text-red-700 dark:text-red-300">Total Despesas</h3>
+                <p id="totalDespesas" class="text-2xl font-bold text-red-800 dark:text-red-200">R$ 0,00</p>
             </div>
-            <div class="bg-blue-100 p-4 rounded shadow text-center">
-                <h3 class="text-lg font-semibold text-blue-700">Saldo Atual</h3>
-                <p id="saldoAtual" class="text-2xl font-bold text-blue-800">R$ 0,00</p>
+            <div class="bg-blue-100 dark:bg-blue-900/50 p-4 rounded shadow text-center">
+                <h3 class="text-lg font-semibold text-blue-700 dark:text-blue-300">Saldo Atual</h3>
+                <p id="saldoAtual" class="text-2xl font-bold text-blue-800 dark:text-blue-200">R$ 0,00</p>
             </div>
         </section>
-        <section aria-label="Filtros para lançamentos" class="bg-white p-6 rounded-lg shadow-sm">
-            <h2 class="text-lg font-bold mb-4">Filtros</h2>
+        <section aria-label="Filtros para lançamentos" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+            <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">Filtros</h2>
             <form id="filtrosForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
                 <div>
-                    <label for="filterMonth" class="block text-sm font-medium text-gray-700">Mês</label>
-                    <select id="filterMonth" name="filterMonth" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <label for="filterMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mês</label>
+                    <select id="filterMonth" name="filterMonth" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Todos</option>
                         <option value="1">Janeiro</option>
                         <option value="2">Fevereiro</option>
@@ -206,39 +206,39 @@
                     </select>
                 </div>
                 <div>
-                    <label for="filterYear" class="block text-sm font-medium text-gray-700">Ano</label>
-                    <select id="filterYear" name="filterYear" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <label for="filterYear" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Ano</label>
+                    <select id="filterYear" name="filterYear" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         </select>
                 </div>
                 <div>
-                    <label for="filterDay" class="block text-sm font-medium text-gray-700">Dia</label>
+                    <label for="filterDay" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dia</label>
                     <input
                         type="number"
                         id="filterDay"
                         name="filterDay"
                         min="1"
                         max="31"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Ex: 15"
                     />
                 </div>
                 <div>
-                    <label for="filterCategoria" class="block text-sm font-medium text-gray-700">Categoria</label>
+                    <label for="filterCategoria" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoria</label>
                     <input
                         type="text"
                         id="filterCategoria"
                         name="filterCategoria"
                         placeholder="Ex: Alimentação"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         aria-label="Filtrar por categoria"
                     />
                 </div>
                 <div>
-                    <label for="filterTipo" class="block text-sm font-medium text-gray-700">Tipo</label>
+                    <label for="filterTipo" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo</label>
                     <select
                         id="filterTipo"
                         name="filterTipo"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         aria-label="Filtrar por tipo"
                     >
                         <option value="todos" selected>Todos</option>
@@ -250,7 +250,7 @@
                     <button
                         type="button"
                         id="clearFiltersBtn"
-                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white font-semibold py-2 px-4 rounded-lg transition"
                     >
                         Limpar Filtros
                     </button>
@@ -258,9 +258,9 @@
             </form>
         </section>
 
-        <section aria-label="Lista de lançamentos" class="bg-white p-6 rounded-lg shadow-sm">
+        <section aria-label="Lista de lançamentos" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold">Lançamentos</h2>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-white">Lançamentos</h2>
                 <button id="deleteSelectedBtn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition hidden">
                     Excluir Selecionados
                 </button>
@@ -285,7 +285,7 @@
                         </tbody>
                 </table>
             </div>
-            <div id="emptyState" class="hidden text-center text-gray-500 mt-6">
+            <div id="emptyState" class="hidden text-center text-gray-500 dark:text-gray-400 mt-6">
                 Nenhum lançamento encontrado.
             </div>
         </section>
@@ -296,24 +296,24 @@
     </button>
 
     <div id="modalLancamento" class="modal-lancamento-overlay hidden" style="display: none;">
-    <div class="modal-lancamento-content">
+    <div class="modal-lancamento-content bg-white dark:bg-gray-800 text-gray-800 dark:text-white">
             <button id="modalCloseBtn" class="modal-close-btn" aria-label="Fechar formulário de lançamento">✖</button>
             <h2 class="text-xl font-bold mb-4" id="modalFormTitle">Novo Lançamento</h2>
             <form id="lancamentoFormModal" class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                    <label for="descricaoModal" class="block text-sm font-medium text-gray-700">Descrição</label>
+                    <label for="descricaoModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Descrição</label>
                     <input
                         type="text"
                         id="descricaoModal"
                         name="descricao"
                         required
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Ex: Compra mercado"
                         aria-required="true"
                     />
                 </div>
                 <div>
-                    <label for="valorModal" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
+                    <label for="valorModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Valor (R$)</label>
                     <input
                         type="number"
                         id="valorModal"
@@ -321,39 +321,39 @@
                         step="0.01"
                         min="0.01"
                         required
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Ex: 50.00"
                         aria-required="true"
                     />
                 </div>
                 <div>
-                    <label for="dataModal" class="block text-sm font-medium text-gray-700">Data</label>
+                    <label for="dataModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Data</label>
                     <input
                         type="date"
                         id="dataModal"
                         name="data"
                         required
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         aria-required="true"
                     />
                 </div>
                 <div>
-                    <label for="categoriaModal" class="block text-sm font-medium text-gray-700">Categoria</label>
+                    <label for="categoriaModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoria</label>
                     <input
                         type="text"
                         id="categoriaModal"
                         name="categoria"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Ex: Alimentação"
                     />
                 </div>
                 <div>
-                    <label for="tipoModal" class="block text-sm font-medium text-gray-700">Tipo</label>
+                    <label for="tipoModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo</label>
                     <select
                         id="tipoModal"
                         name="tipo"
                         required
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         aria-required="true"
                     >
                         <option value="" disabled selected>Selecione</option>
@@ -362,31 +362,31 @@
                     </select>
                 </div>
                 <div>
-                    <label for="formaPagamentoModal" class="block text-sm font-medium text-gray-700">Forma de Pagamento</label>
+                    <label for="formaPagamentoModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Forma de Pagamento</label>
                     <input
                         type="text"
                         id="formaPagamentoModal"
                         name="formaPagamento"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Ex: Cartão de Crédito"
                     />
                 </div>
                 <div class="md:col-span-2">
-                    <label for="observacaoModal" class="block text-sm font-medium text-gray-700">Observação</label>
+                    <label for="observacaoModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Observação</label>
                     <textarea
                         id="observacaoModal"
                         name="observacao"
                         rows="2"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Adicione qualquer observação aqui..."
                     ></textarea>
                 </div>
                 <div>
-                    <label for="tipoLancamentoModal" class="block text-sm font-medium text-gray-700">Tipo de Lançamento</label>
+                    <label for="tipoLancamentoModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Lançamento</label>
                     <select
                         id="tipoLancamentoModal"
                         name="tipoLancamento"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="normal">Normal</option>
                         <option value="parcelado">Parcelado</option>
@@ -394,34 +394,34 @@
                     </select>
                 </div>
                 <div id="numParcelasRecorrenciasContainer" class="hidden">
-                    <label for="numParcelasRecorrenciasModal" class="block text-sm font-medium text-gray-700">Número de Parcelas/Recorrências</label>
+                    <label for="numParcelasRecorrenciasModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Número de Parcelas/Recorrências</label>
                     <input
                         type="number"
                         id="numParcelasRecorrenciasModal"
                         name="numParcelasRecorrencias"
                         min="1"
                         value="1"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
                 <div id="frequenciaRecorrenciaContainer" class="hidden">
-                    <label for="frequenciaRecorrenciaModal" class="block text-sm font-medium text-gray-700">Frequência</label>
+                    <label for="frequenciaRecorrenciaModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Frequência</label>
                     <select
                         id="frequenciaRecorrenciaModal"
                         name="frequenciaRecorrencia"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="mensal">Mensal</option>
                         <option value="anual">Anual</option>
                     </select>
                 </div>
                 <div id="dataFimRecorrenciaContainer" class="hidden">
-                    <label for="dataFimRecorrenciaModal" class="block text-sm font-medium text-gray-700">Data Final (Opcional)</label>
+                    <label for="dataFimRecorrenciaModal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Data Final (Opcional)</label>
                     <input
                         type="date"
                         id="dataFimRecorrenciaModal"
                         name="dataFimRecorrencia"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
                 <div class="flex items-end gap-2 md:col-span-2">
@@ -442,12 +442,12 @@
                 </div>
             </form>
 
-            <div id="additionalActions" class="mt-6 pt-4 border-t border-gray-200 hidden">
+            <div id="additionalActions" class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 hidden">
                 <h3 class="text-lg font-bold mb-3">Ações Avançadas</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                        <label for="transferUserSelect" class="block text-sm font-medium text-gray-700">Transferir para:</label>
-                        <select id="transferUserSelect" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <label for="transferUserSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Transferir para:</label>
+                        <select id="transferUserSelect" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                             </select>
                     </div>
                     <div class="flex items-end">
@@ -462,8 +462,8 @@
     </div>
 
     <div id="modalConfirmacao" class="modal-overlay hidden" style="display: none;">
-    <div class="modal-content">
-            <p id="confirmacaoMensagem" class="text-gray-800 text-lg mb-4"></p>
+    <div class="modal-content bg-white dark:bg-gray-800">
+            <p id="confirmacaoMensagem" class="text-gray-800 dark:text-white text-lg mb-4"></p>
             <div class="modal-buttons">
                 <button id="confirmacaoSim" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition">Sim</button>
                 <button id="confirmacaoNao" class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition">Não</button>
@@ -475,5 +475,5 @@
 
     <script type="module" src="./js/lancamentos.js"></script>
     <script type="module" src="./js/theme.js"></script>
-    </body>
+</body>
 </html>

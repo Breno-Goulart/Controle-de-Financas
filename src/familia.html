@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br" class="">
+<html lang="pt-br" class=""> <!-- Adicionado class="" para que o JS possa controlar o tema -->
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,7 +11,7 @@
         .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white">
 
     <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-20">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -75,7 +75,7 @@
 
             <div class="my-6 flex items-center">
                 <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-                <span class="flex-shrink mx-4 text-gray-400 text-sm">OU</span>
+                <span class="flex-shrink mx-4 text-gray-400 dark:text-gray-300 text-sm">OU</span>
                 <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
             </div>
 
@@ -94,7 +94,6 @@
                 aria-live="polite"
                 class="mt-6 text-center p-4 rounded-lg text-sm hidden"
             ></div>
-            <!-- Removido o botão de logout duplicado, agora no cabeçalho global -->
         </div>
     </main>
 
