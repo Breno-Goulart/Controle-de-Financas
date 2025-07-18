@@ -12,12 +12,12 @@ const applyTheme = (theme) => {
     // Define qual classe e ícones devem ser mostrados
     if (theme === 'dark') {
         document.documentElement.classList.add('dark');
-        if (themeToggleLightIcon) themeToggleLightIcon.classList.remove('hidden');
-        if (themeToggleDarkIcon) themeToggleDarkIcon.classList.add('hidden');
+        if (themeToggleLightIcon) themeToggleLightIcon.classList.add('hidden'); // Esconde o sol
+        if (themeToggleDarkIcon) themeToggleDarkIcon.classList.remove('hidden'); // Mostra a lua
     } else {
         document.documentElement.classList.remove('dark');
-        if (themeToggleDarkIcon) themeToggleDarkIcon.classList.remove('hidden');
-        if (themeToggleLightIcon) themeToggleLightIcon.classList.add('hidden');
+        if (themeToggleDarkIcon) themeToggleDarkIcon.classList.add('hidden'); // Esconde a lua
+        if (themeToggleLightIcon) themeToggleLightIcon.classList.remove('hidden'); // Mostra o sol
     }
     // Salva a preferência do usuário no armazenamento local para visitas futuras.
     localStorage.setItem('theme', theme);

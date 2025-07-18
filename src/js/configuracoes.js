@@ -22,7 +22,7 @@ import {
     where,
     getDocs,
     writeBatch
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Corrigido o domínio para gstatic.com
 // Fim da alteração: Centralização da configuração do Firebase
 
 // Centralized messages
@@ -71,6 +71,13 @@ const familyForm = document.getElementById("familyForm");
 const familiaIdInput = document.getElementById("familiaId");
 const emailInput = document.getElementById("email");
 
+// Elementos de erro específicos
+const nomeError = document.getElementById('nome-error');
+const sobrenomeError = document.getElementById('sobrenome-error');
+const newPasswordError = document.getElementById('newPassword-error');
+const confirmPasswordError = document.getElementById('confirmPassword-error');
+const familiaIdError = document.getElementById('familiaId-error');
+
 // Password Criteria UI
 const passwordCriteria = {
     charLength: document.getElementById('charLength'),
@@ -96,13 +103,20 @@ const REAUTH_LOCKOUT_DURATION = 60000;
 const showToast = (message, isError = false) => {
     toastMessage.textContent = message;
     toastIcon.textContent = isError ? '✕' : '✓';
-    toast.className = `fixed bottom-5 right-5 text-white py-2 px-4 rounded-lg shadow-lg z-50 flex items-center ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+    // Remove todas as classes de cor antes de adicionar as novas
+    toast.classList.remove("bg-green-600", "bg-red-600", "dark:bg-green-700", "dark:bg-red-700"); 
+    
+    if (isError) {
+        toast.classList.add("bg-red-600", "dark:bg-red-700");
+    } else {
+        toast.classList.add("bg-green-600", "dark:bg-green-700");
+    }
     toast.classList.remove('hidden');
     setTimeout(() => toast.classList.add('hidden'), 4000);
 };
 
-const setFormSubmitting = (form, isSubmitting) => {
-    const button = form.querySelector('button[type="submit"]');
+const setFormSubmitting = (formElement, isSubmitting) => {
+    const button = formElement.querySelector('button[type="submit"]');
     if (!button) return;
     button.disabled = isSubmitting;
     const buttonText = button.querySelector('.button-text');
@@ -115,13 +129,22 @@ const setFormSubmitting = (form, isSubmitting) => {
 
 const validatePassword = (password) => /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password);
 
-const setInputInvalid = (input, message) => {
+const setInputInvalid = (input, message, errorElement) => {
     input.classList.add('border-red-500', 'dark:border-red-500');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+    }
     input.focus();
-    showToast(message, true);
+    // showToast(message, true); // Removido para evitar toast duplicado com erro específico
 };
 
-const clearInputValidation = (input) => input.classList.remove('border-red-500', 'dark:border-red-500');
+const clearInputValidation = (input, errorElement) => {
+    input.classList.remove('border-red-500', 'dark:border-red-500');
+    if (errorElement) {
+        errorElement.classList.add('hidden');
+    }
+};
 
 // --- PASSWORD VALIDATION & UI ---
 const updatePasswordCriteriaUI = (password) => {
@@ -176,6 +199,7 @@ const closeReauthModal = () => {
     reauthModal.classList.add('hidden');
     reauthForm.reset();
     pendingAction = null;
+    reauthError.classList.add('hidden'); // Esconde erro do modal de reautenticação
 };
 
 cancelReauthBtn.addEventListener('click', closeReauthModal);
@@ -210,17 +234,16 @@ const loadUserData = async (user) => {
     }
 };
 
-// Início da alteração: Remoção completa da função updateUserLaunches
-// A função updateUserLaunches foi removida, pois a exibição do nome do usuário
-// nos lançamentos agora é feita dinamicamente no lancamentos.js
-// Fim da alteração: Remoção completa da função updateUserLaunches
-
 // --- EVENT LISTENERS ---
-[nomeInput, sobrenomeInput, newPasswordInput, confirmPasswordInput, familiaIdInput].forEach(input => {
-    input.addEventListener('input', () => clearInputValidation(input));
+nomeInput.addEventListener('input', () => clearInputValidation(nomeInput, nomeError));
+sobrenomeInput.addEventListener('input', () => clearInputValidation(sobrenomeInput, sobrenomeError));
+newPasswordInput.addEventListener('input', () => {
+    clearInputValidation(newPasswordInput, newPasswordError);
+    updatePasswordCriteriaUI(newPasswordInput.value);
 });
+confirmPasswordInput.addEventListener('input', () => clearInputValidation(confirmPasswordInput, confirmPasswordError));
+familiaIdInput.addEventListener('input', () => clearInputValidation(familiaIdInput, familiaIdError));
 
-newPasswordInput.addEventListener('input', () => updatePasswordCriteriaUI(newPasswordInput.value));
 
 document.querySelectorAll('.password-toggle').forEach(button => {
     button.addEventListener('click', () => {
@@ -233,11 +256,21 @@ document.querySelectorAll('.password-toggle').forEach(button => {
 
 profileForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    // Limpa erros anteriores
+    clearInputValidation(nomeInput, nomeError);
+    clearInputValidation(sobrenomeInput, sobrenomeError);
+
     const newName = nomeInput.value.trim();
     const newLastName = sobrenomeInput.value.trim();
 
-    if (!newName || newName.length < 2 || newName.length > 50) return setInputInvalid(nomeInput, MESSAGES.lengthInvalid('Nome'));
-    if (!newLastName || newLastName.length < 2 || newLastName.length > 50) return setInputInvalid(sobrenomeInput, MESSAGES.lengthInvalid('Sobrenome'));
+    if (!newName || newName.length < 2 || newName.length > 50) {
+        setInputInvalid(nomeInput, MESSAGES.lengthInvalid('Nome'), nomeError);
+        return;
+    }
+    if (!newLastName || newLastName.length < 2 || newLastName.length > 50) {
+        setInputInvalid(sobrenomeInput, MESSAGES.lengthInvalid('Sobrenome'), sobrenomeError);
+        return;
+    }
 
     const newDisplayName = `${newName} ${newLastName}`; // Guarda o nome completo numa variável
 
@@ -250,10 +283,6 @@ profileForm.addEventListener('submit', async (e) => {
         userName.textContent = newDisplayName;
         showToast(MESSAGES.profileUpdateSuccess);
 
-        // Início da alteração: Remoção da chamada à função updateUserLaunches
-        // A chamada a updateUserLaunches foi removida.
-        // Fim da alteração: Remoção da chamada à função updateUserLaunches
-
     } catch (error) {
         console.error("Erro ao atualizar perfil:", error);
         showToast(MESSAGES.profileUpdateError, true);
@@ -264,22 +293,39 @@ profileForm.addEventListener('submit', async (e) => {
 
 passwordForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!validatePassword(newPasswordInput.value)) return setInputInvalid(newPasswordInput, MESSAGES.passwordInvalid);
-    if (newPasswordInput.value !== confirmPasswordInput.value) return showToast(MESSAGES.passwordMismatch, true);
+    // Limpa erros anteriores
+    clearInputValidation(newPasswordInput, newPasswordError);
+    clearInputValidation(confirmPasswordInput, confirmPasswordError);
+
+    if (!validatePassword(newPasswordInput.value)) {
+        setInputInvalid(newPasswordInput, MESSAGES.passwordInvalid, newPasswordError);
+        return;
+    }
+    if (newPasswordInput.value !== confirmPasswordInput.value) {
+        setInputInvalid(confirmPasswordInput, MESSAGES.passwordMismatch, confirmPasswordError);
+        // showToast(MESSAGES.passwordMismatch, true); // Já é tratado pelo setInputInvalid
+        return;
+    }
 
     openReauthModal('password');
 });
 
 familyForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    // Limpa erros anteriores
+    clearInputValidation(familiaIdInput, familiaIdError);
+
     const newFamiliaId = familiaIdInput.value.trim();
-    if (!newFamiliaId) return setInputInvalid(familiaIdInput, MESSAGES.familyIdEmpty);
+    if (!newFamiliaId) {
+        setInputInvalid(familiaIdInput, MESSAGES.familyIdEmpty, familiaIdError);
+        return;
+    }
 
     setFormSubmitting(familyForm, true);
     try {
         const familiaExists = await checkFamiliaIdExists(newFamiliaId);
         if (!familiaExists) {
-            setInputInvalid(familiaIdInput, MESSAGES.familyIdInvalid);
+            setInputInvalid(familiaIdInput, MESSAGES.familyIdInvalid, familiaIdError);
             return;
         }
 
@@ -296,6 +342,8 @@ familyForm.addEventListener('submit', async (e) => {
 
 reauthForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    reauthError.classList.add('hidden'); // Limpa erro do modal de reautenticação
+
     const password = currentPasswordInput.value;
     if (!password) {
         reauthError.textContent = MESSAGES.reauthPrompt;
@@ -340,26 +388,6 @@ reauthForm.addEventListener('submit', async (e) => {
         reauthError.textContent = message;
         reauthError.classList.remove('hidden');
     }
-});
-
-// --- THEME TOGGLE LOGIC ---
-const applyTheme = (theme) => {
-    if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-        themeToggleLightIcon.classList.remove('hidden');
-        themeToggleDarkIcon.classList.add('hidden');
-    } else {
-        document.documentElement.classList.remove('dark');
-        themeToggleDarkIcon.classList.remove('hidden');
-        themeToggleLightIcon.classList.add('hidden');
-    }
-};
-
-themeToggleBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('theme', newTheme);
-    applyTheme(newTheme);
 });
 
 // --- AUTHENTICATION ---

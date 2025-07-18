@@ -115,11 +115,13 @@ function mostrarToast(mensagem, type = "success") { // Adicionado 'type' para co
     if (!toast) return;
 
     toast.textContent = mensagem;
-    toast.classList.remove("bg-green-600", "bg-red-600"); // Limpa cores anteriores
+    // Remove todas as classes de cor antes de adicionar as novas
+    toast.classList.remove("bg-green-600", "bg-red-600", "dark:bg-green-700", "dark:bg-red-700"); 
+    
     if (type === "success") {
-        toast.classList.add("bg-green-600");
+        toast.classList.add("bg-green-600", "dark:bg-green-700");
     } else if (type === "error") {
-        toast.classList.add("bg-red-600");
+        toast.classList.add("bg-red-600", "dark:bg-red-700");
     }
     toast.classList.add("show-toast");
 
@@ -203,10 +205,10 @@ const updateSummary = () => {
     saldoAtualEl.textContent = formatCurrency(saldoAtual);
 
     // Cores para o saldo
-    saldoAtualEl.classList.remove("text-green-600", "text-red-600", "text-gray-800");
-    if (saldoAtual > 0) saldoAtualEl.classList.add("text-green-600");
-    else if (saldoAtual < 0) saldoAtualEl.classList.add("text-red-600");
-    else saldoAtualEl.classList.add("text-gray-800");
+    saldoAtualEl.classList.remove("text-green-600", "text-red-600", "text-gray-800", "dark:text-green-200", "dark:text-red-200", "dark:text-white");
+    if (saldoAtual > 0) saldoAtualEl.classList.add("text-green-600", "dark:text-green-200");
+    else if (saldoAtual < 0) saldoAtualEl.classList.add("text-red-600", "dark:text-red-200");
+    else saldoAtualEl.classList.add("text-gray-800", "dark:text-white");
 };
 // Fim da alteração: Lógica de cálculo e exibição do resumo (updateSummary)
 
@@ -396,7 +398,7 @@ function renderLancamentos(lancamentos) {
 
         lancamentosDoMes.forEach(l => {
             const isReceita = l.tipo === "receita" || l.tipo === "entrada";
-            const textColor = isReceita ? "text-green-600" : "text-red-600";
+            const textColor = isReceita ? "text-green-600 dark:text-green-300" : "text-red-600 dark:text-red-300"; // Adicionado dark:text-
 
             const row = document.createElement("tr");
             row.classList.add('cursor-pointer', 'dark:hover:bg-gray-600');
@@ -410,7 +412,7 @@ function renderLancamentos(lancamentos) {
 
             // ⭐ Ponto principal da alteração: a célula da data
             const dataCellHTML = `
-                <td>
+                <td data-label="Data">
                     ${formatDate(l)}
                     ${l.tipoLancamento === 'parcelado' && l.dataOriginal ? `<br><small class="text-gray-500 dark:text-gray-400">Compra: ${formatDate({ data: l.dataOriginal })}</small>` : ''}
                 </td>
@@ -428,14 +430,14 @@ function renderLancamentos(lancamentos) {
                     >
                 </td>
                 ${dataCellHTML}
-                <td>${l.descricao || "N/A"}</td>
-                <td>${l.tipoLancamento === "parcelado" ? `${l.parcelaAtual}/${l.totalParcelas}` : 'Não'}</td>
-                <td class="${textColor}">${formatCurrency(l.valor)}</td>
-                <td>${l.tipo || "N/A"}</td>
-                <td>${l.categoria || "N/A"}</td>
-                <td>${l.formaPagamento || "N/A"}</td>
-                <td>${l.tipoLancamento === "recorrente" ? 'Sim' : 'Não'}</td>
-                <td>${l.nomeUsuario || '---'}</td>
+                <td data-label="Descrição">${l.descricao || "N/A"}</td>
+                <td data-label="Parcelas">${l.tipoLancamento === "parcelado" ? `${l.parcelaAtual}/${l.totalParcelas}` : 'Não'}</td>
+                <td data-label="Valor" class="${textColor}">${formatCurrency(l.valor)}</td>
+                <td data-label="Tipo">${l.tipo || "N/A"}</td>
+                <td data-label="Categoria">${l.categoria || "N/A"}</td>
+                <td data-label="Forma de Pagamento">${l.formaPagamento || "N/A"}</td>
+                <td data-label="Recorrência">${l.tipoLancamento === "recorrente" ? 'Sim' : 'Não'}</td>
+                <td data-label="Usuário">${l.nomeUsuario || '---'}</td>
             `;
 
             // Adiciona listener para cada checkbox individual

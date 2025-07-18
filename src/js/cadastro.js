@@ -40,11 +40,16 @@ const showFeedback = (message, isError = false) => {
     feedbackMessage.textContent = message;
     feedbackMessage.classList.remove('hidden');
 
-    feedbackMessage.classList.remove('bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+    // Remove todas as classes de cor antes de adicionar as novas
+    feedbackMessage.classList.remove(
+        'bg-green-100', 'text-green-800', 'dark:bg-green-900/50', 'dark:text-green-300',
+        'bg-red-100', 'text-red-800', 'dark:bg-red-900/50', 'dark:text-red-300'
+    );
+
     if (isError) {
-        feedbackMessage.classList.add('bg-red-100', 'text-red-800');
+        feedbackMessage.classList.add('bg-red-100', 'text-red-800', 'dark:bg-red-900/50', 'dark:text-red-300');
     } else {
-        feedbackMessage.classList.add('bg-green-100', 'text-green-800');
+        feedbackMessage.classList.add('bg-green-100', 'text-green-800', 'dark:bg-green-900/50', 'dark:text-green-300');
     }
 };
 
@@ -73,10 +78,10 @@ inputs.forEach(input => {
         input.setAttribute('aria-invalid', 'false');
         feedbackMessage.classList.add('hidden');
         // Esconde erros específicos ao digitar
-        if (input.id === 'nome') nomeError.classList.add('hidden');
-        if (input.id === 'sobrenome') sobrenomeError.classList.add('hidden');
-        if (input.id === 'email') emailError.classList.add('hidden');
-        if (input.id === 'senha') senhaError.classList.add('hidden');
+        if (input.id === 'nome' && nomeError) nomeError.classList.add('hidden');
+        if (input.id === 'sobrenome' && sobrenomeError) sobrenomeError.classList.add('hidden');
+        if (input.id === 'email' && emailError) emailError.classList.add('hidden');
+        if (input.id === 'senha' && senhaError) senhaError.classList.add('hidden');
     });
 });
 
@@ -85,10 +90,10 @@ cadastroForm.addEventListener('submit', async (e) => {
 
     inputs.forEach(input => input.setAttribute('aria-invalid', 'false'));
     // Esconde todas as mensagens de erro específicas no início do submit
-    nomeError.classList.add('hidden');
-    sobrenomeError.classList.add('hidden');
-    emailError.classList.add('hidden');
-    senhaError.classList.add('hidden');
+    if (nomeError) nomeError.classList.add('hidden');
+    if (sobrenomeError) sobrenomeError.classList.add('hidden');
+    if (emailError) emailError.classList.add('hidden');
+    if (senhaError) senhaError.classList.add('hidden');
 
 
     const nome = nomeInput.value.trim();
@@ -97,43 +102,63 @@ cadastroForm.addEventListener('submit', async (e) => {
     const senha = senhaInput.value;
 
     if (!nome) {
-        nomeError.textContent = 'Por favor, preencha o campo de nome.';
-        nomeError.classList.remove('hidden');
+        if (nomeError) {
+            nomeError.textContent = 'Por favor, preencha o campo de nome.';
+            nomeError.classList.remove('hidden');
+        } else {
+            showFeedback('Por favor, preencha o campo de nome.', true);
+        }
         nomeInput.setAttribute('aria-invalid', 'true');
         nomeInput.focus();
         return;
     }
     if (!sobrenome) {
-        sobrenomeError.textContent = 'Por favor, preencha o campo de sobrenome.';
-        sobrenomeError.classList.remove('hidden');
+        if (sobrenomeError) {
+            sobrenomeError.textContent = 'Por favor, preencha o campo de sobrenome.';
+            sobrenomeError.classList.remove('hidden');
+        } else {
+            showFeedback('Por favor, preencha o campo de sobrenome.', true);
+        }
         sobrenomeInput.setAttribute('aria-invalid', 'true');
         sobrenomeInput.focus();
         return;
     }
     if (!email) {
-        emailError.textContent = 'Por favor, preencha o campo de e-mail.';
-        emailError.classList.remove('hidden');
+        if (emailError) {
+            emailError.textContent = 'Por favor, preencha o campo de e-mail.';
+            emailError.classList.remove('hidden');
+        } else {
+            showFeedback('Por favor, preencha o campo de e-mail.', true);
+        }
         emailInput.setAttribute('aria-invalid', 'true');
         emailInput.focus();
         return;
     }
     if (!senha) {
-        senhaError.textContent = 'Por favor, preencha o campo de senha.';
-        senhaError.classList.remove('hidden');
+        if (senhaError) {
+            senhaError.textContent = 'Por favor, preencha o campo de senha.';
+            senhaError.classList.remove('hidden');
+        } else {
+            showFeedback('Por favor, preencha o campo de senha.', true);
+        }
         senhaInput.setAttribute('aria-invalid', 'true');
         senhaInput.focus();
         return;
     }
     if (senha.length < 6) {
-        senhaError.textContent = 'A senha deve ter pelo menos 6 caracteres.';
-        senhaError.classList.remove('hidden');
+        if (senhaError) {
+            senhaError.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+            senhaError.classList.remove('hidden');
+        } else {
+            showFeedback('A senha deve ter pelo menos 6 caracteres.', true);
+        }
         senhaInput.setAttribute('aria-invalid', 'true');
         senhaInput.focus();
         return;
     }
 
     setFormSubmitting(cadastroForm, true); // Ajustado para usar o formElement
-    feedbackMessage.classList.add('hidden');
+    feedbackMessage.classList.add('hidden'); // Esconde o feedbackMessage geral ao iniciar o submit
 
     try {
         // 1. Criar usuário no Firebase Auth
@@ -171,7 +196,7 @@ cadastroForm.addEventListener('submit', async (e) => {
             'auth/weak-password': 'A senha é muito fraca.',
         };
         const friendlyMessage = errorMessages[error.code] || 'Ocorreu um erro inesperado. Tente novamente.';
-        showFeedback(friendlyMessage, true);
+        showFeedback(friendlyMessage, true); // Continua usando o feedbackMessage geral para erros de autenticação
     } finally {
         setFormSubmitting(cadastroForm, false); // Ajustado para usar o formElement
     }

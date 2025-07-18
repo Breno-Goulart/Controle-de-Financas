@@ -25,7 +25,7 @@ const loginButton = document.getElementById("loginButton");
 const googleLoginButton = document.getElementById("googleLoginButton");
 const feedbackMessage = document.getElementById("feedbackMessage");
 
-// Elementos de erro específicos
+// Elementos de erro específicos (se existirem, caso contrário, o feedbackMessage geral será usado)
 const emailError = document.getElementById('email-error');
 const senhaError = document.getElementById('senha-error');
 
@@ -37,16 +37,16 @@ const showFeedback = (message, isError = false, autoHide = true) => {
     feedbackMessage.classList.remove("hidden");
     feedbackMessage.textContent = message;
 
+    // Remove todas as classes de cor antes de adicionar as novas
     feedbackMessage.classList.remove(
-        "bg-red-100",
-        "text-red-800",
-        "bg-blue-100",
-        "text-blue-800"
+        "bg-red-100", "text-red-800", "dark:bg-red-900/50", "dark:text-red-300",
+        "bg-blue-100", "text-blue-800", "dark:bg-blue-900/50", "dark:text-blue-300"
     );
+
     if (isError) {
-        feedbackMessage.classList.add("bg-red-100", "text-red-800");
+        feedbackMessage.classList.add("bg-red-100", "text-red-800", "dark:bg-red-900/50", "dark:text-red-300");
     } else {
-        feedbackMessage.classList.add("bg-blue-100", "text-blue-800");
+        feedbackMessage.classList.add("bg-blue-100", "text-blue-800", "dark:bg-blue-900/50", "dark:text-blue-300");
     }
 
     if (autoHide) {
@@ -135,22 +135,31 @@ loginForm.addEventListener("submit", async (e) => {
     // Reset previous invalid states and hide specific error messages
     emailInput.setAttribute('aria-invalid', 'false');
     senhaInput.setAttribute('aria-invalid', 'false');
-    emailError.classList.add('hidden');
-    senhaError.classList.add('hidden');
+    if (emailError) emailError.classList.add('hidden'); // Verifica se o elemento existe
+    if (senhaError) senhaError.classList.add('hidden'); // Verifica se o elemento existe
+
 
     const email = emailInput.value.trim();
     const senha = senhaInput.value;
 
     if (!email) {
-        emailError.textContent = "Por favor, preencha o campo de e-mail.";
-        emailError.classList.remove('hidden');
+        if (emailError) { // Usa o elemento de erro específico se existir
+            emailError.textContent = "Por favor, preencha o campo de e-mail.";
+            emailError.classList.remove('hidden');
+        } else { // Fallback para o feedbackMessage geral
+            showFeedback("Por favor, preencha o campo de e-mail.", true);
+        }
         emailInput.setAttribute('aria-invalid', 'true');
         emailInput.focus();
         return;
     }
     if (!senha) {
-        senhaError.textContent = "Por favor, preencha o campo de senha.";
-        senhaError.classList.remove('hidden');
+        if (senhaError) { // Usa o elemento de erro específico se existir
+            senhaError.textContent = "Por favor, preencha o campo de senha.";
+            senhaError.classList.remove('hidden');
+        } else { // Fallback para o feedbackMessage geral
+            showFeedback("Por favor, preencha o campo de senha.", true);
+        }
         senhaInput.setAttribute('aria-invalid', 'true');
         senhaInput.focus();
         return;
@@ -158,7 +167,7 @@ loginForm.addEventListener("submit", async (e) => {
 
     localStorage.setItem("userEmail", email);
     setFormSubmitting(loginForm, true); // Ajustado para usar o formElement
-    showFeedback("Autenticando...", false, false);
+    feedbackMessage.classList.add('hidden'); // Esconde o feedbackMessage geral ao iniciar o submit
 
     try {
         await signInWithEmailAndPassword(auth, email, senha);
@@ -171,7 +180,7 @@ loginForm.addEventListener("submit", async (e) => {
         };
         const friendlyMessage =
             errorMessages[error.code] || "Ocorreu um erro ao tentar fazer login.";
-        showFeedback(friendlyMessage, true);
+        showFeedback(friendlyMessage, true); // Continua usando o feedbackMessage geral para erros de autenticação
         setFormSubmitting(loginForm, false); // Ajustado para usar o formElement
     }
 });
@@ -199,12 +208,12 @@ googleLoginButton.addEventListener("click", async () => {
 emailInput.addEventListener("input", () => {
     feedbackMessage.classList.add("hidden");
     emailInput.setAttribute('aria-invalid', 'false');
-    emailError.classList.add('hidden'); // Esconde o erro específico
+    if (emailError) emailError.classList.add('hidden'); // Esconde o erro específico se existir
 });
 senhaInput.addEventListener("input", () => {
     feedbackMessage.classList.add("hidden");
     senhaInput.setAttribute('aria-invalid', 'false');
-    senhaError.classList.add('hidden'); // Esconde o erro específico
+    if (senhaError) senhaError.classList.add('hidden'); // Esconde o erro específico se existir
 });
 
 // Fim do código JavaScript movido

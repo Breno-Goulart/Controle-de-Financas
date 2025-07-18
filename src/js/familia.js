@@ -28,11 +28,16 @@ const showFeedback = (message, isError = false, autoHide = true) => {
     feedbackMessage.classList.remove("hidden");
     feedbackMessage.textContent = message;
 
-    feedbackMessage.classList.remove("bg-red-100", "text-red-800", "bg-green-100", "text-green-800");
+    // Remove todas as classes de cor antes de adicionar as novas
+    feedbackMessage.classList.remove(
+        "bg-red-100", "text-red-800", "dark:bg-red-900/50", "dark:text-red-300",
+        "bg-green-100", "text-green-800", "dark:bg-green-900/50", "dark:text-green-300"
+    );
+
     if (isError) {
-        feedbackMessage.classList.add("bg-red-100", "text-red-800");
+        feedbackMessage.classList.add("bg-red-100", "text-red-800", "dark:bg-red-900/50", "dark:text-red-300");
     } else {
-        feedbackMessage.classList.add("bg-green-100", "text-green-800");
+        feedbackMessage.classList.add("bg-green-100", "text-green-800", "dark:bg-green-900/50", "dark:text-green-300");
     }
 
     if (autoHide) {
@@ -75,7 +80,7 @@ onAuthStateChanged(auth, async (user) => {
 
 // Evento para o botão de criar nova chave
 criarChaveButton.addEventListener("click", () => {
-    familiaIdInputError.classList.add('hidden'); // Esconde erro específico
+    if (familiaIdInputError) familiaIdInputError.classList.add('hidden'); // Esconde erro específico
     familiaIdInput.setAttribute('aria-invalid', 'false');
 
     const novaChave = crypto.randomUUID().slice(0, 8).toUpperCase();
@@ -88,13 +93,17 @@ criarChaveButton.addEventListener("click", () => {
 familiaForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     familiaIdInput.setAttribute('aria-invalid', 'false');
-    familiaIdInputError.classList.add('hidden'); // Esconde erro específico
+    if (familiaIdInputError) familiaIdInputError.classList.add('hidden'); // Esconde erro específico
 
 
     const chaveFamilia = familiaIdInput.value.trim();
     if (!chaveFamilia) {
-        familiaIdInputError.textContent = "Por favor, insira ou crie uma chave de família.";
-        familiaIdInputError.classList.remove('hidden');
+        if (familiaIdInputError) {
+            familiaIdInputError.textContent = "Por favor, insira ou crie uma chave de família.";
+            familiaIdInputError.classList.remove('hidden');
+        } else {
+            showFeedback("Por favor, insira ou crie uma chave de família.", true);
+        }
         familiaIdInput.setAttribute('aria-invalid', 'true');
         familiaIdInput.focus();
         return;
@@ -136,7 +145,7 @@ familiaForm.addEventListener("submit", async (e) => {
 familiaIdInput.addEventListener('input', () => {
     familiaIdInput.setAttribute('aria-invalid', 'false');
     feedbackMessage.classList.add('hidden');
-    familiaIdInputError.classList.add('hidden'); // Esconde erro específico
+    if (familiaIdInputError) familiaIdInputError.classList.add('hidden'); // Esconde erro específico
 });
 
 const handleLogout = async (e) => {
