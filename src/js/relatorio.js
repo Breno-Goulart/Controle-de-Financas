@@ -229,27 +229,30 @@ exportPdfBtn.addEventListener("click", async () => {
         theme: 'striped',
         headStyles: { fillColor: [22, 160, 133] },
         // NOVO: Ajustado columnStyles para A4 paisagem (297mm de largura)
-        // Distribuição de largura para 15 colunas. O total de largura de uma página A4 paisagem é ~297mm.
-        // Margens padrão do autoTable são 10mm de cada lado, então 277mm disponíveis.
+        // Reduzindo ainda mais as larguras para tentar encaixar tudo
         columnStyles: {
-            0: { cellWidth: 18 }, // Data
-            1: { cellWidth: 35 }, // Descrição
-            2: { cellWidth: 25 }, // Categoria
-            3: { cellWidth: 15 }, // Tipo
-            4: { cellWidth: 20 }, // Valor
-            5: { cellWidth: 20 }, // Tipo Lanç.
-            6: { cellWidth: 18 }, // Parcelas
-            7: { cellWidth: 18 }, // Recorr.
-            8: { cellWidth: 18 }, // Frequência
-            9: { cellWidth: 20 }, // Data Original
-            10: { cellWidth: 20 }, // Data Fim Recorr.
-            11: { cellWidth: 25 }, // Forma Pag.
-            12: { cellWidth: 25 }, // Usuário
-            13: { cellWidth: 18 }, // Criado Em
-            14: { cellWidth: 35 }  // Obs. (Ajustada para ser maior)
+            // Índices baseados na nova `tableColumn` (0 a 14)
+            0: { cellWidth: 16 }, // Data (reduzido de 18)
+            1: { cellWidth: 30 }, // Descrição (reduzido de 35)
+            2: { cellWidth: 20 }, // Categoria (mantido)
+            3: { cellWidth: 15 }, // Tipo (mantido)
+            4: { cellWidth: 18 }, // Valor (reduzido de 20)
+            5: { cellWidth: 18 }, // Tipo Lanç. (reduzido de 20)
+            6: { cellWidth: 15 }, // Parcelas (reduzido de 18)
+            7: { cellWidth: 15 }, // Recorr. (reduzido de 18)
+            8: { cellWidth: 18 }, // Frequência (mantido)
+            9: { cellWidth: 18 }, // Data Original (reduzido de 20)
+            10: { cellWidth: 18 }, // Data Fim Recorr. (reduzido de 20)
+            11: { cellWidth: 20 }, // Forma Pag. (reduzido de 25)
+            12: { cellWidth: 20 }, // Usuário (reduzido de 25)
+            13: { cellWidth: 18 }, // Criado Em (mantido)
+            14: { cellWidth: 30 }  // Obs. (reduzido de 35)
         },
         tableWidth: 'wrap', // Permite que a tabela se ajuste à largura da página
         margin: { left: 10, right: 10 }, // Margens para garantir que a tabela não transborde
+        styles: {
+            fontSize: 8 // NOVO: Reduz o tamanho da fonte da tabela para tentar encaixar mais
+        },
         didParseCell: function (data) {
             // Centraliza o texto em colunas específicas se desejar (ex: Valor, Parcelas, Recorrência)
             if ([4, 6, 7].includes(data.column.index)) {
@@ -300,7 +303,7 @@ exportExcelBtn.addEventListener("click", async () => {
             Recorrência: isRecorrente ? 'Sim' : 'Não',
             Frequência: isRecorrente ? (item.frequencia || 'N/A') : 'Não Aplicável',
             "Data Original": isRecorrente ? 'Não Aplicável (Recorrência)' : (item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A'),
-            "Data Fim Recorrência": isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'Não Aplicável',
+            "Data Fim Recorrência": isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'N/A',
             "Forma de Pagamento": item.formaPagamento || 'N/A',
             Usuário: item.nomeUsuario || '---',
             "Criado Em": item.criadoEm ? formatDate(item.criadoEm) : 'N/A',
@@ -312,7 +315,7 @@ exportExcelBtn.addEventListener("click", async () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Lançamentos");
 
-    // Ajuste as larguras das colunas conforme necessário
+    // Ajuste as larguras das colunas conforme necessário para Excel
     worksheet["!cols"] = [
         { wch: 12 }, // Data
         { wch: 30 }, // Descrição
