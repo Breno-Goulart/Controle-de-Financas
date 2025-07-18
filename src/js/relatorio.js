@@ -190,8 +190,12 @@ exportPdfBtn.addEventListener("click", async () => {
     const endDate = endDateInput.value;
     doc.text(`Período: ${formatDate(startDate)} a ${formatDate(endDate)}`, 14, 30);
 
-    // MODIFICADO: Adicionadas colunas "Data Original" e "Data Fim Recorrência"
-    const tableColumn = ["Data", "Descrição", "Categoria", "Tipo", "Parcelas", "Valor", "Recorrência", "Data Original", "Data Fim Recorrência", "Usuário", "Obs."];
+    // MODIFICADO: Adicionadas colunas conforme sua solicitação
+    const tableColumn = [
+        "Data", "Descrição", "Categoria", "Tipo", "Valor",
+        "Tipo Lançamento", "Parcelas", "Recorrência", "Frequência",
+        "Data Original", "Data Fim Recorrência", "Forma Pagamento", "Usuário", "Criado Em", "Obs."
+    ];
     const tableRows = [];
     filteredData.forEach(item => {
         const isRecorrente = item.tipoLancamento === "recorrente";
@@ -202,14 +206,16 @@ exportPdfBtn.addEventListener("click", async () => {
             item.descricao || 'N/A',
             item.categoria || 'N/A',
             item.tipo || 'N/A',
-            // Lógica para exibir parcelas
-            isParcelado ? `${item.parcelaAtual}/${item.totalParcelas}` : 'Não Aplicável',
             formatCurrency(item.valor),
+            item.tipoLancamento || 'Normal', // Tipo de Lançamento
+            isParcelado ? `${item.parcelaAtual || '?'}/${item.totalParcelas || '?'}` : 'Não Aplicável',
             isRecorrente ? 'Sim' : 'Não',
-            // NOVO: Lógica para Data Original e Data Fim Recorrência em recorrentes
+            isRecorrente ? (item.frequencia || 'N/A') : 'Não Aplicável', // Frequência
             isRecorrente ? 'Não Aplicável (Recorrência)' : (item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A'),
-            isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'Não Aplicável', // Se recorrente e sem dataFim, exibe "Sem Data Fim"
-            item.nomeUsuario || '---', // Usa o nome do usuário já mapeado
+            isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'Não Aplicável',
+            item.formaPagamento || 'N/A', // Forma de Pagamento
+            item.nomeUsuario || '---',
+            item.criadoEm ? formatDate(item.criadoEm) : 'N/A', // Criado Em
             item.observacao || ''
         ];
         tableRows.push(itemData);
@@ -221,22 +227,33 @@ exportPdfBtn.addEventListener("click", async () => {
         startY: 35,
         theme: 'striped',
         headStyles: { fillColor: [22, 160, 133] },
-        // MODIFICADO: Ajustado o columnStyles para a nova quantidade de colunas
-        // A coluna "Obs." agora é a última, então seu índice mudou.
-        // Adicionando larguras para as novas colunas de data para melhor visualização.
+        // NOVO: Ajustado o columnStyles para a nova quantidade de colunas e larguras
         columnStyles: {
-            // Índices baseados na nova `tableColumn`
+            // Índices baseados na nova `tableColumn` (0 a 14)
             0: { cellWidth: 15 }, // Data
             1: { cellWidth: 30 }, // Descrição
             2: { cellWidth: 20 }, // Categoria
             3: { cellWidth: 15 }, // Tipo
-            4: { cellWidth: 15 }, // Parcelas
-            5: { cellWidth: 20 }, // Valor
-            6: { cellWidth: 15 }, // Recorrência
-            7: { cellWidth: 18 }, // Data Original
-            8: { cellWidth: 18 }, // Data Fim Recorrência
-            9: { cellWidth: 20 }, // Usuário
-            10: { cellWidth: 40 } // Obs.
+            4: { cellWidth: 20 }, // Valor
+            5: { cellWidth: 20 }, // Tipo Lançamento
+            6: { cellWidth: 15 }, // Parcelas
+            7: { cellWidth: 15 }, // Recorrência
+            8: { cellWidth: 18 }, // Frequência
+            9: { cellWidth: 18 }, // Data Original
+            10: { cellWidth: 18 }, // Data Fim Recorrência
+            11: { cellWidth: 20 }, // Forma Pagamento
+            12: { cellWidth: 20 }, // Usuário
+            13: { cellWidth: 18 }, // Criado Em
+            14: { cellWidth: 40 } // Obs.
+        },
+        // Ajuste para que a tabela caiba na página (opcional, pode ser necessário testar)
+        tableWidth: 'wrap', // Ou 'auto', ou um número fixo se souber a largura total
+        margin: { left: 10, right: 10 }, // Margens para evitar que a tabela saia da página
+        didParseCell: function (data) {
+            // Centraliza o texto em colunas específicas se desejar
+            if (data.column.index === 4 || data.column.index === 6) { // Valor e Recorrência
+                data.cell.styles.halign = 'center';
+            }
         }
     });
 
@@ -277,15 +294,15 @@ exportExcelBtn.addEventListener("click", async () => {
             Categoria: item.categoria || 'N/A',
             Tipo: item.tipo || 'N/A',
             Valor: item.valor,
+            "Tipo Lançamento": item.tipoLancamento || 'Normal', // Tipo de Lançamento
+            "Parcelas": isParcelado ? `${item.parcelaAtual || ''}/${item.totalParcelas || ''}` : 'Não Aplicável',
             Recorrência: isRecorrente ? 'Sim' : 'Não',
-            "Forma de Pagamento": item.formaPagamento || 'N/A',
-            "Parcela Atual": isParcelado ? (item.parcelaAtual || '') : 'Não Aplicável',
-            "Total Parcelas": isParcelado ? (item.totalParcelas || '') : 'Não Aplicável',
-            Frequência: isRecorrente ? (item.frequencia || '') : 'Não Aplicável',
-            // NOVO: Lógica para Data Original e Data Fim Recorrência em recorrentes
+            Frequência: isRecorrente ? (item.frequencia || 'N/A') : 'Não Aplicável',
             "Data Original": isRecorrente ? 'Não Aplicável (Recorrência)' : (item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A'),
-            "Data Fim Recorrência": isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'Não Aplicável', // Se recorrente e sem dataFim, exibe "Sem Data Fim"
+            "Data Fim Recorrência": isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'Não Aplicável',
+            "Forma de Pagamento": item.formaPagamento || 'N/A',
             Usuário: item.nomeUsuario || '---',
+            "Criado Em": item.criadoEm ? formatDate(item.criadoEm) : 'N/A',
             Observação: item.observacao || ''
         };
     });
@@ -296,9 +313,21 @@ exportExcelBtn.addEventListener("click", async () => {
 
     // Ajuste as larguras das colunas conforme necessário
     worksheet["!cols"] = [
-        { wch: 12 }, { wch: 30 }, { wch: 20 }, { wch: 10 },
-        { wch: 12 }, { wch: 15 }, { wch: 20 }, { wch: 10 },
-        { wch: 10 }, { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 40 }
+        { wch: 12 }, // Data
+        { wch: 30 }, // Descrição
+        { wch: 20 }, // Categoria
+        { wch: 10 }, // Tipo
+        { wch: 12 }, // Valor
+        { wch: 18 }, // Tipo Lançamento
+        { wch: 15 }, // Parcelas
+        { wch: 15 }, // Recorrência
+        { wch: 15 }, // Frequência
+        { wch: 18 }, // Data Original
+        { wch: 18 }, // Data Fim Recorrência
+        { wch: 20 }, // Forma Pagamento
+        { wch: 20 }, // Usuário
+        { wch: 18 }, // Criado Em
+        { wch: 40 }  // Observação
     ];
 
     XLSX.writeFile(workbook, "relatorio-financeiro.xlsx");
