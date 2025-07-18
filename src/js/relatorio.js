@@ -194,18 +194,21 @@ exportPdfBtn.addEventListener("click", async () => {
     const tableColumn = ["Data", "Descrição", "Categoria", "Tipo", "Parcelas", "Valor", "Recorrência", "Data Original", "Data Fim Recorrência", "Usuário", "Obs."];
     const tableRows = [];
     filteredData.forEach(item => {
+        const isRecorrente = item.tipoLancamento === "recorrente";
+        const isParcelado = item.tipoLancamento === "parcelado";
+
         const itemData = [
             formatDate(item.data),
             item.descricao || 'N/A',
             item.categoria || 'N/A',
             item.tipo || 'N/A',
             // Lógica para exibir parcelas
-            item.tipoLancamento === "parcelado" ? `${item.parcelaAtual}/${item.totalParcelas}` : 'Não Aplicável',
+            isParcelado ? `${item.parcelaAtual}/${item.totalParcelas}` : 'Não Aplicável',
             formatCurrency(item.valor),
-            item.tipoLancamento === "recorrente" ? 'Sim' : 'Não',
-            // NOVO: Adiciona Data Original e Data Fim Recorrência (garante 'N/A' se o campo não existir ou for nulo)
-            item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A',
-            item.dataFim ? formatDate(item.dataFim) : 'N/A',
+            isRecorrente ? 'Sim' : 'Não',
+            // NOVO: Lógica para Data Original e Data Fim Recorrência em recorrentes
+            isRecorrente ? 'Não Aplicável (Recorrência)' : (item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A'),
+            isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'Não Aplicável', // Se recorrente e sem dataFim, exibe "Sem Data Fim"
             item.nomeUsuario || '---', // Usa o nome do usuário já mapeado
             item.observacao || ''
         ];
@@ -264,23 +267,28 @@ exportExcelBtn.addEventListener("click", async () => {
     exportPdfBtn.disabled = true;
     exportExcelBtn.disabled = true;
 
-    const formattedData = filteredData.map(item => ({
-        Data: formatDate(item.data),
-        Descrição: item.descricao || 'N/A',
-        Categoria: item.categoria || 'N/A',
-        Tipo: item.tipo || 'N/A',
-        Valor: item.valor,
-        Recorrência: item.tipoLancamento === "recorrente" ? 'Sim' : 'Não',
-        "Forma de Pagamento": item.formaPagamento || 'N/A',
-        "Parcela Atual": item.parcelaAtual || '',
-        "Total Parcelas": item.totalParcelas || '',
-        Frequência: item.frequencia || '',
-        // NOVO: Adiciona Data Original e Data Fim Recorrência (garante 'N/A' se o campo não existir ou for nulo)
-        "Data Original": item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A',
-        "Data Fim Recorrência": item.dataFim ? formatDate(item.dataFim) : 'N/A',
-        Usuário: item.nomeUsuario || '---',
-        Observação: item.observacao || ''
-    }));
+    const formattedData = filteredData.map(item => {
+        const isRecorrente = item.tipoLancamento === "recorrente";
+        const isParcelado = item.tipoLancamento === "parcelado";
+
+        return {
+            Data: formatDate(item.data),
+            Descrição: item.descricao || 'N/A',
+            Categoria: item.categoria || 'N/A',
+            Tipo: item.tipo || 'N/A',
+            Valor: item.valor,
+            Recorrência: isRecorrente ? 'Sim' : 'Não',
+            "Forma de Pagamento": item.formaPagamento || 'N/A',
+            "Parcela Atual": isParcelado ? (item.parcelaAtual || '') : 'Não Aplicável',
+            "Total Parcelas": isParcelado ? (item.totalParcelas || '') : 'Não Aplicável',
+            Frequência: isRecorrente ? (item.frequencia || '') : 'Não Aplicável',
+            // NOVO: Lógica para Data Original e Data Fim Recorrência em recorrentes
+            "Data Original": isRecorrente ? 'Não Aplicável (Recorrência)' : (item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A'),
+            "Data Fim Recorrência": isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'Não Aplicável', // Se recorrente e sem dataFim, exibe "Sem Data Fim"
+            Usuário: item.nomeUsuario || '---',
+            Observação: item.observacao || ''
+        };
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
     const workbook = XLSX.utils.book_new();
