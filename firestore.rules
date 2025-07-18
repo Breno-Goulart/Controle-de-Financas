@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 👤 Regras para usuários
+    match /users/{userId} {
+      allow read: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.familiaId
+           == resource.data.familiaId;
+
+      allow update, delete: if request.auth != null
+        && request.auth.uid == userId;
+
+      allow create: if request.auth != null;
+    }
+
+    // 💰 Regras para lançamentos
+    match /artifacts/controle-de-financas-6e2d9/public/data/lancamentos/{lancamentoId} {
+
+      function getAuthFamiliaId() {
+        return request.auth.uid != null
+          ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.familiaId
+          : null;
+      }
+
+      // 🔍 Leitura — liberada para membros da mesma família (inclusive em queries)
+      allow read: if request.auth != null
+        && getAuthFamiliaId() != null;
+
+      // ✍️ Criação — apenas se familiaId bate com a do usuário
+      allow create: if request.auth != null
+        && request.resource.data.familiaId == getAuthFamiliaId();
+
+      // 📝 Atualização — válida se o documento e a requisição têm mesma família
+      allow update: if request.auth != null
+        && resource.data.familiaId == getAuthFamiliaId()
+        && request.resource.data.familiaId == resource.data.familiaId;
+
+      // 🗑️ Exclusão — permitida se o documento pertence à mesma família
+      allow delete: if request.auth != null
+        && resource.data.familiaId == getAuthFamiliaId();
+    }
+
+    // 🏠 Regras para famílias
+    match /families/{familyId} {
+      allow read: if request.auth != null;
+    }
+  }
+}

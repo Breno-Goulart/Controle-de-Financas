@@ -1,0 +1,22 @@
+{
+  "functions": {
+    "source": "functions",
+    "predeploy": []
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "port": 4000
+    }
+  }
+  // ... pode haver outras seções como "hosting" ou "storage", mantenha-as.
+}
