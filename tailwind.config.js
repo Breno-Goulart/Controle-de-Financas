@@ -1,10 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // A linha mais importante que faltava:
+  // Esta é a linha mais importante que faltava.
+  // Ela diz ao Tailwind: "Ative as classes 'dark:' quando a classe 'dark' for adicionada ao HTML".
   darkMode: 'class',
 
   content: [
-    // Garante que o Tailwind analisa todos os seus ficheiros
+    // Isto garante que o Tailwind procura por classes em todos os seus ficheiros.
     './src/**/*.{html,js}',
   ],
   theme: {
