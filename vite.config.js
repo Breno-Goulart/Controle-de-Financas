@@ -1,10 +1,17 @@
 // vite.config.js
-import { resolve } from 'path';
-import { defineConfig } from 'vite';
+
+import { resolve } from 'path'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
+  // 1. Define a raiz do seu código-fonte
+  root: 'src',
+
   build: {
+    // 2. Define o diretório de saída para a raiz do projeto
+    outDir: '../dist',
     rollupOptions: {
+      // 3. Os caminhos agora são relativos à 'root' que definimos acima
       input: {
         main: resolve(__dirname, 'src/index.html'),
         login: resolve(__dirname, 'src/login.html'),
@@ -17,4 +24,4 @@ export default defineConfig({
       },
     },
   },
-});
+})
