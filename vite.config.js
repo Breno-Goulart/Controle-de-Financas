@@ -2,20 +2,14 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  // Define a pasta 'src' como a raiz para desenvolvimento.
+  // Isto resolve automaticamente a estrutura de pastas no build final.
+  root: 'src',
+
   build: {
-    rollupOptions: {
-      input: {
-        // O nome à esquerda é o nome do arquivo final (ex: main.html -> index.html)
-        // O valor à direita é o caminho para o arquivo-fonte
-        main: 'src/index.html',
-        login: 'src/login.html',
-        cadastro: 'src/cadastro.html',
-        familia: 'src/familia.html',
-        lancamentos: 'src/lancamentos.html',
-        configuracoes: 'src/configuracoes.html',
-        historico: 'src/historico.html',
-        relatorio: 'src/relatorio.html',
-      },
-    },
+    // Coloca os arquivos finais numa pasta 'dist' na raiz do projeto.
+    outDir: '../dist',
+    // Limpa a pasta 'dist' antes de cada build.
+    emptyOutDir: true,
   },
 });
