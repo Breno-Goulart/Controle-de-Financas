@@ -1,15 +1,23 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // Esta é a linha mais importante que faltava.
-  // Ela diz ao Tailwind: "Ative as classes 'dark:' quando a classe 'dark' for adicionada ao HTML".
+  // Habilita o modo escuro baseado em classe
   darkMode: 'class',
 
+  // Informa ao Tailwind quais arquivos devem ser analisados
   content: [
-    // Isto garante que o Tailwind procura por classes em todos os seus ficheiros.
-    './src/**/*.{html,js}',
+    "./src/**/*.{html,js}",
   ],
+
+  // Configurações de tema (opcional, mas bom ter)
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        // Garante que a fonte 'Inter' esteja disponível
+        sans: ['Inter', 'sans-serif'],
+      },
+    },
   },
+  
+  // Plugins (opcional)
   plugins: [],
 }
