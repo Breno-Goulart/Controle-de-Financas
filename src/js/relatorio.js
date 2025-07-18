@@ -176,7 +176,8 @@ exportPdfBtn.addEventListener("click", async () => {
     exportPdfBtn.disabled = true;
     exportExcelBtn.disabled = true;
 
-    const doc = new jsPDF();
+    // MODIFICADO: Definindo o PDF para A4 paisagem (landscape)
+    const doc = new jsPDF('landscape', 'mm', 'a4'); // 'landscape' para horizontal, 'mm' para milímetros, 'a4' para o tamanho do papel
 
     const totalReceitas = filteredData.filter(l => l.tipo === 'receita' || l.tipo === 'entrada').reduce((sum, l) => sum + l.valor, 0);
     const totalDespesas = filteredData.filter(l => l.tipo === 'despesa' || l.tipo === 'saida').reduce((sum, l) => sum + l.valor, 0);
@@ -190,11 +191,11 @@ exportPdfBtn.addEventListener("click", async () => {
     const endDate = endDateInput.value;
     doc.text(`Período: ${formatDate(startDate)} a ${formatDate(endDate)}`, 14, 30);
 
-    // MODIFICADO: Adicionadas colunas conforme sua solicitação
+    // MODIFICADO: Adicionadas colunas conforme sua solicitação e ajustado o cabeçalho
     const tableColumn = [
         "Data", "Descrição", "Categoria", "Tipo", "Valor",
-        "Tipo Lançamento", "Parcelas", "Recorrência", "Frequência",
-        "Data Original", "Data Fim Recorrência", "Forma Pagamento", "Usuário", "Criado Em", "Obs."
+        "Tipo Lanç.", "Parcelas", "Recorr.", "Frequência",
+        "Data Original", "Data Fim Recorr.", "Forma Pag.", "Usuário", "Criado Em", "Obs."
     ];
     const tableRows = [];
     filteredData.forEach(item => {
@@ -208,11 +209,11 @@ exportPdfBtn.addEventListener("click", async () => {
             item.tipo || 'N/A',
             formatCurrency(item.valor),
             item.tipoLancamento || 'Normal', // Tipo de Lançamento
-            isParcelado ? `${item.parcelaAtual || '?'}/${item.totalParcelas || '?'}` : 'Não Aplicável',
+            isParcelado ? `${item.parcelaAtual || '?'}/${item.totalParcelas || '?'}` : 'N/A', // Parcelas
             isRecorrente ? 'Sim' : 'Não',
-            isRecorrente ? (item.frequencia || 'N/A') : 'Não Aplicável', // Frequência
-            isRecorrente ? 'Não Aplicável (Recorrência)' : (item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A'),
-            isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'Não Aplicável',
+            isRecorrente ? (item.frequencia || 'N/A') : 'N/A', // Frequência
+            isRecorrente ? 'N/A (Recorr.)' : (item.dataOriginal ? formatDate(item.dataOriginal) : 'N/A'), // Data Original
+            isRecorrente ? (item.dataFim ? formatDate(item.dataFim) : 'Sem Data Fim') : 'N/A', // Data Fim Recorrência
             item.formaPagamento || 'N/A', // Forma de Pagamento
             item.nomeUsuario || '---',
             item.criadoEm ? formatDate(item.criadoEm) : 'N/A', // Criado Em
@@ -227,31 +228,31 @@ exportPdfBtn.addEventListener("click", async () => {
         startY: 35,
         theme: 'striped',
         headStyles: { fillColor: [22, 160, 133] },
-        // NOVO: Ajustado o columnStyles para a nova quantidade de colunas e larguras
+        // NOVO: Ajustado columnStyles para A4 paisagem (297mm de largura)
+        // Distribuição de largura para 15 colunas. O total de largura de uma página A4 paisagem é ~297mm.
+        // Margens padrão do autoTable são 10mm de cada lado, então 277mm disponíveis.
         columnStyles: {
-            // Índices baseados na nova `tableColumn` (0 a 14)
-            0: { cellWidth: 15 }, // Data
-            1: { cellWidth: 30 }, // Descrição
-            2: { cellWidth: 20 }, // Categoria
+            0: { cellWidth: 18 }, // Data
+            1: { cellWidth: 35 }, // Descrição
+            2: { cellWidth: 25 }, // Categoria
             3: { cellWidth: 15 }, // Tipo
             4: { cellWidth: 20 }, // Valor
-            5: { cellWidth: 20 }, // Tipo Lançamento
-            6: { cellWidth: 15 }, // Parcelas
-            7: { cellWidth: 15 }, // Recorrência
+            5: { cellWidth: 20 }, // Tipo Lanç.
+            6: { cellWidth: 18 }, // Parcelas
+            7: { cellWidth: 18 }, // Recorr.
             8: { cellWidth: 18 }, // Frequência
-            9: { cellWidth: 18 }, // Data Original
-            10: { cellWidth: 18 }, // Data Fim Recorrência
-            11: { cellWidth: 20 }, // Forma Pagamento
-            12: { cellWidth: 20 }, // Usuário
+            9: { cellWidth: 20 }, // Data Original
+            10: { cellWidth: 20 }, // Data Fim Recorr.
+            11: { cellWidth: 25 }, // Forma Pag.
+            12: { cellWidth: 25 }, // Usuário
             13: { cellWidth: 18 }, // Criado Em
-            14: { cellWidth: 40 } // Obs.
+            14: { cellWidth: 35 }  // Obs. (Ajustada para ser maior)
         },
-        // Ajuste para que a tabela caiba na página (opcional, pode ser necessário testar)
-        tableWidth: 'wrap', // Ou 'auto', ou um número fixo se souber a largura total
-        margin: { left: 10, right: 10 }, // Margens para evitar que a tabela saia da página
+        tableWidth: 'wrap', // Permite que a tabela se ajuste à largura da página
+        margin: { left: 10, right: 10 }, // Margens para garantir que a tabela não transborde
         didParseCell: function (data) {
-            // Centraliza o texto em colunas específicas se desejar
-            if (data.column.index === 4 || data.column.index === 6) { // Valor e Recorrência
+            // Centraliza o texto em colunas específicas se desejar (ex: Valor, Parcelas, Recorrência)
+            if ([4, 6, 7].includes(data.column.index)) {
                 data.cell.styles.halign = 'center';
             }
         }
@@ -294,7 +295,7 @@ exportExcelBtn.addEventListener("click", async () => {
             Categoria: item.categoria || 'N/A',
             Tipo: item.tipo || 'N/A',
             Valor: item.valor,
-            "Tipo Lançamento": item.tipoLancamento || 'Normal', // Tipo de Lançamento
+            "Tipo Lançamento": item.tipoLancamento || 'Normal',
             "Parcelas": isParcelado ? `${item.parcelaAtual || ''}/${item.totalParcelas || ''}` : 'Não Aplicável',
             Recorrência: isRecorrente ? 'Sim' : 'Não',
             Frequência: isRecorrente ? (item.frequencia || 'N/A') : 'Não Aplicável',
