@@ -4,7 +4,7 @@ import '../css/style.css'; // Adicionada esta linha
 
 // Início da alteração: Centralização da configuração do Firebase
 // Removido firebaseConfig e initializeApp, agora importados de firebaseConfig.js
-import { auth, db } from "./firebaseConfig.js"; // Importa auth e db do novo arquivo de configuração
+import { auth, db } from "/js/firebaseConfig.js"; // Importa auth e db do novo arquivo de configuração
 import {
     onAuthStateChanged,
     signOut
@@ -103,6 +103,7 @@ let currentLancamentos = [];
 let currentUserName = null;
 let currentUserId = null;
 let pendingConfirmAction = null; // Armazena a ação a ser confirmada (exclusão)
+let usersMap = {}; // NOVO: Mapa para armazenar nomes de usuários da família
 
 // NOVOS ELEMENTOS E ESTADOS PARA SELEÇÃO E EXCLUSÃO EM MASSA
 const selectAllCheckbox = document.getElementById("selectAllCheckbox");
@@ -524,6 +525,23 @@ async function loadLancamentos(filters = {}) {
         return;
     }
 
+    // NOVO: 1. Buscar usuários da família e criar um mapa (se ainda não tiver sido feito)
+    // Isso garante que os nomes dos usuários estejam disponíveis para exibição
+    try {
+        const usersCol = collection(db, "users");
+        const qUsers = query(usersCol, where("familiaId", "==", familiaId));
+        const usersSnapshot = await getDocs(qUsers);
+        usersMap = {}; // Limpa o mapa a cada carregamento para garantir dados frescos
+        usersSnapshot.forEach(doc => {
+            const userData = doc.data();
+            usersMap[doc.id] = `${userData.nome || ''} ${userData.sobrenome || ''}`.trim() || userData.email;
+        });
+    } catch (error) {
+        console.error("Erro ao carregar usuários da família:", error);
+        mostrarToast("Erro ao carregar usuários da família.", "error");
+        return; // Não prossegue se não conseguir carregar os usuários
+    }
+
     const lancamentosCol = collection(db, "artifacts", "controle-de-financas-6e2d9", "public", "data", "lancamentos");
     let q = query(lancamentosCol, where("familiaId", "==", familiaId));
 
@@ -565,8 +583,10 @@ async function loadLancamentos(filters = {}) {
                 data.data = new Timestamp(data.data.seconds, data.data.nanoseconds);
             }
             if (data.dataOriginal && !(data.dataOriginal instanceof Timestamp)) {
-                data.dataOriginal = new Timestamp(data.dataOriginal.seconds, data.dataOriginal.nanoseconds);
+                data.dataOriginal = new Timestamp(data.dataOriginal.seconds, data.data.nanoseconds);
             }
+            // NOVO: 2. Adicionar o nome do usuário aos dados do lançamento usando o mapa
+            data.nomeUsuario = usersMap[data.usuarioId] || 'Usuário Desconhecido';
             return data;
         });
 
@@ -1096,19 +1116,11 @@ deleteLaunchBtn.addEventListener("click", () => {
                 if (isMestreParcelado || isMestreRecorrente) {
                 // Fim da alteração
                     try {
-                        // Removido console.log de depuração da consulta da série
-                        // console.log("Tentando excluir série. QueryField:", queryField, "QueryValue:", queryValue);
-
                         const qSeries = query(
                             collection(db, "artifacts", "controle-de-financas-6e2d9", "public", "data", "lancamentos"),
                             where(queryField, "==", queryValue)
                         );
                         const snapshot = await getDocs(qSeries);
-
-                        // Removido console.logs de depuração dos documentos da série
-                        /*
-                        console.log("Documento encontrado:", doc.id, doc.data());
-                        */
 
                         if (!snapshot.empty) {
                             const batch = writeBatch(db);
@@ -1123,8 +1135,7 @@ deleteLaunchBtn.addEventListener("click", () => {
                             return;
                         }
                     } catch (queryError) {
-                        // Removido console.warn de depuração da consulta da série
-                        // console.warn("Erro ao consultar série. UID:", queryValue, "Erro:", queryError);
+                        console.warn("Erro ao consultar série. UID:", queryValue, "Erro:", queryError);
                         // Continua para excluir apenas o mestre
                     }
                 }

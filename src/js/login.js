@@ -1,9 +1,8 @@
 import '../css/style.css'; // Adicionada esta linha
 // public/js/login.js
 // Este arquivo contém todo o código JavaScript que foi movido de public/login.html
-// Início do código JavaScript movido de public/login.html
 
-import { auth, db } from "./firebaseConfig.js"; // Importa auth e db do arquivo de configuração centralizado
+import { auth, db } from "/js/firebaseConfig.js"; // Importa auth e db do arquivo de configuração centralizado
 import {
     signInWithEmailAndPassword,
     GoogleAuthProvider,
@@ -25,6 +24,11 @@ const senhaInput = document.getElementById("senha");
 const loginButton = document.getElementById("loginButton");
 const googleLoginButton = document.getElementById("googleLoginButton");
 const feedbackMessage = document.getElementById("feedbackMessage");
+
+// Elementos de erro específicos
+const emailError = document.getElementById('email-error');
+const senhaError = document.getElementById('senha-error');
+
 
 let feedbackTimeoutId;
 
@@ -50,10 +54,23 @@ const showFeedback = (message, isError = false, autoHide = true) => {
     }
 };
 
-const setFormSubmitting = (isSubmitting) => {
-    loginButton.disabled = isSubmitting;
-    googleLoginButton.disabled = isSubmitting;
-    loginButton.textContent = isSubmitting ? "Autenticando..." : "Entrar";
+// Função auxiliar para gerenciar o estado de envio de formulários
+const setFormSubmitting = (formElement, isSubmitting) => {
+    const button = formElement.querySelector('button[type="submit"], button[type="button"]'); // Seleciona botões de submit ou tipo button
+    if (!button) return;
+    button.disabled = isSubmitting;
+    const buttonText = button.querySelector('#buttonText');
+    const buttonLoader = button.querySelector('#buttonLoader');
+    if (buttonText && buttonLoader) {
+        buttonText.classList.toggle('hidden', isSubmitting);
+        buttonLoader.classList.toggle('hidden', !isSubmitting);
+    } else {
+        // Fallback para botões sem span/div de loader
+        button.textContent = isSubmitting ? "Carregando..." : button.dataset.originalText;
+        if (!button.dataset.originalText) {
+            button.dataset.originalText = button.textContent;
+        }
+    }
 };
 
 const createUserProfileIfNotExists = async (user) => {
@@ -91,7 +108,7 @@ const handleLoginSuccess = async (user) => {
     } catch (error) {
         console.error("Erro ao buscar/criar dados do usuário no Firestore:", error);
         showFeedback("Não foi possível verificar seus dados. Tente novamente.", true);
-        setFormSubmitting(false);
+        setFormSubmitting(loginForm, false); // Ajustado para usar o formElement
     }
 };
 
@@ -115,28 +132,32 @@ onAuthStateChanged(auth, (user) => {
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // Reset previous invalid states
+    // Reset previous invalid states and hide specific error messages
     emailInput.setAttribute('aria-invalid', 'false');
     senhaInput.setAttribute('aria-invalid', 'false');
+    emailError.classList.add('hidden');
+    senhaError.classList.add('hidden');
 
     const email = emailInput.value.trim();
     const senha = senhaInput.value;
 
     if (!email) {
-        showFeedback("Por favor, preencha o campo de e-mail.", true);
+        emailError.textContent = "Por favor, preencha o campo de e-mail.";
+        emailError.classList.remove('hidden');
         emailInput.setAttribute('aria-invalid', 'true');
         emailInput.focus();
         return;
     }
     if (!senha) {
-        showFeedback("Por favor, preencha o campo de senha.", true);
+        senhaError.textContent = "Por favor, preencha o campo de senha.";
+        senhaError.classList.remove('hidden');
         senhaInput.setAttribute('aria-invalid', 'true');
         senhaInput.focus();
         return;
     }
 
     localStorage.setItem("userEmail", email);
-    setFormSubmitting(true);
+    setFormSubmitting(loginForm, true); // Ajustado para usar o formElement
     showFeedback("Autenticando...", false, false);
 
     try {
@@ -151,12 +172,12 @@ loginForm.addEventListener("submit", async (e) => {
         const friendlyMessage =
             errorMessages[error.code] || "Ocorreu um erro ao tentar fazer login.";
         showFeedback(friendlyMessage, true);
-        setFormSubmitting(false);
+        setFormSubmitting(loginForm, false); // Ajustado para usar o formElement
     }
 });
 
 googleLoginButton.addEventListener("click", async () => {
-    setFormSubmitting(true);
+    setFormSubmitting(loginForm, true); // Ajustado para usar o formElement
     showFeedback("Abrindo pop-up do Google...", false, false);
 
     const provider = new GoogleAuthProvider();
@@ -171,17 +192,19 @@ googleLoginButton.addEventListener("click", async () => {
             friendlyMessage = "Erro de rede. Verifique sua conexão e tente novamente.";
         }
         showFeedback(friendlyMessage, true);
-        setFormSubmitting(false);
+        setFormSubmitting(loginForm, false); // Ajustado para usar o formElement
     }
 });
 
 emailInput.addEventListener("input", () => {
     feedbackMessage.classList.add("hidden");
     emailInput.setAttribute('aria-invalid', 'false');
+    emailError.classList.add('hidden'); // Esconde o erro específico
 });
 senhaInput.addEventListener("input", () => {
     feedbackMessage.classList.add("hidden");
     senhaInput.setAttribute('aria-invalid', 'false');
+    senhaError.classList.add('hidden'); // Esconde o erro específico
 });
 
 // Fim do código JavaScript movido

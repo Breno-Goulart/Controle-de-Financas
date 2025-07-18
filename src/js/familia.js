@@ -2,7 +2,7 @@ import '../css/style.css'; // Adicionada esta linha
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { auth, db } from "./firebaseConfig.js";
+import { auth, db } from "/js/firebaseConfig.js";
 
 // UI Elements
 const loader = document.getElementById("loader");
@@ -13,8 +13,12 @@ const salvarChaveButton = document.getElementById("salvarChaveButton");
 const criarChaveButton = document.getElementById("criarChaveButton");
 const feedbackMessage = document.getElementById("feedbackMessage");
 const logoutButton = document.getElementById("logoutButton");
-const logoutButtonFamilia = document.getElementById("logoutButtonFamilia");
+// Removido: const logoutButtonFamilia = document.getElementById("logoutButtonFamilia");
 const userName = document.getElementById("userName");
+
+// Elementos de erro específicos
+const familiaIdInputError = document.getElementById('familiaIdInput-error');
+
 
 let feedbackTimeoutId;
 
@@ -36,10 +40,23 @@ const showFeedback = (message, isError = false, autoHide = true) => {
     }
 };
 
-const setFormSubmitting = (isSubmitting) => {
-    salvarChaveButton.disabled = isSubmitting;
-    criarChaveButton.disabled = isSubmitting;
-    salvarChaveButton.textContent = isSubmitting ? "Salvando..." : "Usar esta chave";
+// Função auxiliar para gerenciar o estado de envio de formulários
+const setFormSubmitting = (formElement, isSubmitting) => {
+    const button = formElement.querySelector('button[type="submit"], button[type="button"]'); // Seleciona botões de submit ou tipo button
+    if (!button) return;
+    button.disabled = isSubmitting;
+    const buttonText = button.querySelector('#buttonText');
+    const buttonLoader = button.querySelector('#buttonLoader');
+    if (buttonText && buttonLoader) {
+        buttonText.classList.toggle('hidden', isSubmitting);
+        buttonLoader.classList.toggle('hidden', !isSubmitting);
+    } else {
+        // Fallback para botões sem span/div de loader
+        button.textContent = isSubmitting ? "Carregando..." : button.dataset.originalText;
+        if (!button.dataset.originalText) {
+            button.dataset.originalText = button.textContent;
+        }
+    }
 };
 
 // Lógica de Autenticação e Redirecionamento CORRIGIDA
@@ -58,6 +75,9 @@ onAuthStateChanged(auth, async (user) => {
 
 // Evento para o botão de criar nova chave
 criarChaveButton.addEventListener("click", () => {
+    familiaIdInputError.classList.add('hidden'); // Esconde erro específico
+    familiaIdInput.setAttribute('aria-invalid', 'false');
+
     const novaChave = crypto.randomUUID().slice(0, 8).toUpperCase();
     familiaIdInput.value = novaChave;
     familiaIdInput.focus();
@@ -68,10 +88,13 @@ criarChaveButton.addEventListener("click", () => {
 familiaForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     familiaIdInput.setAttribute('aria-invalid', 'false');
+    familiaIdInputError.classList.add('hidden'); // Esconde erro específico
+
 
     const chaveFamilia = familiaIdInput.value.trim();
     if (!chaveFamilia) {
-        showFeedback("Por favor, insira ou crie uma chave de família.", true);
+        familiaIdInputError.textContent = "Por favor, insira ou crie uma chave de família.";
+        familiaIdInputError.classList.remove('hidden');
         familiaIdInput.setAttribute('aria-invalid', 'true');
         familiaIdInput.focus();
         return;
@@ -84,7 +107,7 @@ familiaForm.addEventListener("submit", async (e) => {
         return;
     }
 
-    setFormSubmitting(true);
+    setFormSubmitting(familiaForm, true); // Ajustado para usar o formElement
     showFeedback("Salvando sua chave de família...", false, false);
 
     try {
@@ -105,7 +128,7 @@ familiaForm.addEventListener("submit", async (e) => {
     } catch (error) {
         console.error("Erro ao salvar a chave de família:", error);
         showFeedback("Ocorreu um erro ao salvar. Tente novamente.", true);
-        setFormSubmitting(false);
+        setFormSubmitting(familiaForm, false); // Ajustado para usar o formElement
     }
 });
 
@@ -113,6 +136,7 @@ familiaForm.addEventListener("submit", async (e) => {
 familiaIdInput.addEventListener('input', () => {
     familiaIdInput.setAttribute('aria-invalid', 'false');
     feedbackMessage.classList.add('hidden');
+    familiaIdInputError.classList.add('hidden'); // Esconde erro específico
 });
 
 const handleLogout = async (e) => {
@@ -126,4 +150,4 @@ const handleLogout = async (e) => {
 
 // Logout
 if(logoutButton) logoutButton.addEventListener("click", handleLogout);
-if(logoutButtonFamilia) logoutButtonFamilia.addEventListener("click", handleLogout);
+// Removido: if(logoutButtonFamilia) logoutButtonFamilia.addEventListener("click", handleLogout);

@@ -3,7 +3,7 @@ import '../css/style.css'; // Adicionada esta linha
 
 // Início da alteração: Centralização da configuração do Firebase
 // Removido firebaseConfig e initializeApp, agora importados de firebaseConfig.js
-import { auth, db } from "./firebaseConfig.js"; // Importa auth e db do novo arquivo de configuração
+import { auth, db } from "/js/firebaseConfig.js"; // Importa auth e db do novo arquivo de configuração
 import {
     onAuthStateChanged,
     signOut,
@@ -17,11 +17,11 @@ import {
     doc,
     getDoc,
     updateDoc,
-    collection, // Adicionado para a nova função updateUserLaunches
-    query,      // Adicionado para a nova função updateUserLaunches
-    where,      // Adicionado para a nova função updateUserLaunches
-    getDocs,    // Adicionado para a nova função updateUserLaunches
-    writeBatch  // Adicionado para a nova função updateUserLaunches
+    collection,
+    query,
+    where,
+    getDocs,
+    writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 // Fim da alteração: Centralização da configuração do Firebase
 
@@ -210,35 +210,10 @@ const loadUserData = async (user) => {
     }
 };
 
-// Início da alteração: Nova função para atualizar o nome nos lançamentos antigos
-const updateUserLaunches = async (userId, newDisplayName) => {
-    console.log(`Iniciando a atualização de lançamentos para o usuário: ${userId}`);
-    const lancamentosRef = collection(db, "artifacts", "controle-de-financas-6e2d9", "public", "data", "lancamentos");
-    const q = query(lancamentosRef, where("usuarioId", "==", userId));
-
-    try {
-        const querySnapshot = await getDocs(q);
-        const batch = writeBatch(db);
-        let updatedCount = 0;
-
-        querySnapshot.forEach((doc) => {
-            batch.update(doc.ref, { nomeUsuario: newDisplayName });
-            updatedCount++;
-        });
-
-        if (updatedCount > 0) {
-            await batch.commit();
-            console.log(`${updatedCount} lançamentos foram atualizados com o novo nome.`);
-            showToast(`${updatedCount} lançamentos atualizados com sucesso!`);
-        } else {
-            console.log("Nenhum lançamento encontrado para este usuário.");
-        }
-    } catch (error) {
-        console.error("Erro ao atualizar os lançamentos:", error);
-        showToast("Ocorreu um erro ao atualizar o histórico de lançamentos.", true);
-    }
-};
-// Fim da alteração: Nova função para atualizar o nome nos lançamentos antigos
+// Início da alteração: Remoção completa da função updateUserLaunches
+// A função updateUserLaunches foi removida, pois a exibição do nome do usuário
+// nos lançamentos agora é feita dinamicamente no lancamentos.js
+// Fim da alteração: Remoção completa da função updateUserLaunches
 
 // --- EVENT LISTENERS ---
 [nomeInput, sobrenomeInput, newPasswordInput, confirmPasswordInput, familiaIdInput].forEach(input => {
@@ -275,9 +250,9 @@ profileForm.addEventListener('submit', async (e) => {
         userName.textContent = newDisplayName;
         showToast(MESSAGES.profileUpdateSuccess);
 
-        // Início da alteração: Chamada da nova função updateUserLaunches
-        await updateUserLaunches(currentUser.uid, newDisplayName);
-        // Fim da alteração: Chamada da nova função updateUserLaunches
+        // Início da alteração: Remoção da chamada à função updateUserLaunches
+        // A chamada a updateUserLaunches foi removida.
+        // Fim da alteração: Remoção da chamada à função updateUserLaunches
 
     } catch (error) {
         console.error("Erro ao atualizar perfil:", error);

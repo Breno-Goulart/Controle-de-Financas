@@ -25,20 +25,24 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label for="nome" class="visually-hidden">Nome</label>
-                    <input type="text" id="nome" placeholder="Nome" required autocomplete="given-name" aria-describedby="feedbackMessage" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <input type="text" id="nome" placeholder="Nome" required autocomplete="given-name" aria-describedby="nome-error" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <p id="nome-error" class="text-red-600 text-sm mt-1 hidden" role="alert"></p>
                 </div>
                 <div>
                     <label for="sobrenome" class="visually-hidden">Sobrenome</label>
-                    <input type="text" id="sobrenome" placeholder="Sobrenome" required autocomplete="family-name" aria-describedby="feedbackMessage" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <input type="text" id="sobrenome" placeholder="Sobrenome" required autocomplete="family-name" aria-describedby="sobrenome-error" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <p id="sobrenome-error" class="text-red-600 text-sm mt-1 hidden" role="alert"></p>
                 </div>
             </div>
             <div class="mb-4">
                 <label for="email" class="visually-hidden">E-mail</label>
-                <input type="email" id="email" placeholder="Seu melhor e-mail" required autocomplete="email" aria-describedby="feedbackMessage" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <input type="email" id="email" placeholder="Seu melhor e-mail" required autocomplete="email" aria-describedby="email-error" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <p id="email-error" class="text-red-600 text-sm mt-1 hidden" role="alert"></p>
             </div>
             <div class="mb-6">
                 <label for="senha" class="visually-hidden">Senha</label>
-                <input type="password" id="senha" placeholder="Senha (mínimo 6 caracteres)" required minlength="6" autocomplete="new-password" aria-describedby="feedbackMessage" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <input type="password" id="senha" placeholder="Senha (mínimo 6 caracteres)" required minlength="6" autocomplete="new-password" aria-describedby="senha-error" class="w-full px-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <p id="senha-error" class="text-red-600 text-sm mt-1 hidden" role="alert"></p>
             </div>
             <button type="submit" id="submitButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 disabled:cursor-not-allowed disabled:transform-none">
                 <span id="buttonText">Cadastrar</span>
